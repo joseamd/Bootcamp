@@ -1,0 +1,25 @@
+<!--IniciaModal-->
+<div class="modal-dialog modal-lg" role="document" >
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title"> Actualizar Bootcamp: "{{bootcampBd.titulo}}"</h3></p>
+        </div>
+        <form enctype="multipart/form-data" action=" {% url 'Edit_bootcamp' bootcampBd.pk %} " method="POST" class="form-control">
+            <div class="modal-body"> 
+                {% csrf_token %}
+                {{form.as_p}}
+                <p></p>
+                <label>* Fecha inicio:</label><input type="date" id="id_fecha_inicio" name="id_fecha_inicio" class="form-control" value= '{{fecha_inicio | date:"Y-m-d"}}'/></label>                                 
+                <p></p> 
+                <input type="hidden" id="id_bootcamp" name="id_bootcamp" >               
+            </div>
+            <div class="modal-footer">
+                <div class="section-container text-center">  
+                    <button type="button" class="btn btn-secondary btn-lg btn-block" data-bs-toggle="modal" aria-label="close">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-lg btn-block" >Actualizar</button>
+                </div>    
+            </div>
+        </form>
+    </div>
+</div>
+  <!--EndModal-->

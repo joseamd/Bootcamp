@@ -1,0 +1,25 @@
+<!--IniciaModal-->
+
+<div class="modal-dialog modal-lg" role="document" >
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title"> Perfil Usuario: {{usuario.username}} {{usuario.last_name}}</h3>
+          <img src="{{user.profile.photo.url}}" class="rounded-circle" width="30" height="30" alt="" />        
+        </div>
+        <form enctype="multipart/form-data" action=" {% url 'Edit_perfil' %}" method="POST" class="form-control">
+            <div class="modal-body"> 
+                {% csrf_token %}
+                {{form.as_p}}
+                <p></p> 
+                <input type="hidden" id="id_bootcamp" name="id_bootcamp" >  
+            </div>
+            <div class="modal-footer">
+                <div class="section-container text-center">  
+                    <button type="button" class="btn btn-secondary btn-lg btn-block" data-bs-toggle="modal" aria-label="close">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-lg btn-block" >Actualizar</button>
+                </div>    
+            </div>
+        </form>
+    </div>
+</div>
+  <!--EndModal-->

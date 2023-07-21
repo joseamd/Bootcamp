@@ -1,0 +1,54 @@
+{% extends "autenticacion/base_autenticacion.html" %}
+{%load static %}
+{% block content %}
+			
+<!-- BEGIN register-container -->
+<div class="register-container">
+	<!-- BEGIN register-header -->
+	<div class="login-header mb-30px">
+		<div class="brand">
+			<a href="{% url 'Home' %}" class="navbar-brand">
+				<span class="logo"></span>
+					<b>REGISTRO</b>
+				</span>
+			</a>	
+		</div>
+		<div class="icon">
+			<i class="fa fa-sign-in-alt"></i>
+		</div>
+	</div>
+	<!-- END register-header -->				
+	
+	<!-- BEGIN register-content -->
+	<div class="register-content">
+		<form method="post" action="" class="fs-13px">
+			<div class="mb-3">
+				<div class="row gx-3">
+					{% csrf_token %}
+					{{form}}				
+
+					<div class="form-check mb-4">
+						<input class="form-check-input" type="checkbox" value="" id="agreementCheckbox" />
+						<label class="form-check-label" for="agreementCheckbox">
+							Al hacer clic en Registrarse, usted acepta nuestros <a href="javascript:;">Términos</a> y que has leído nuestra <a href="javascript:;">Política de datos</a>, incluyendo nuestro <a href="javascript:;">Uso de cookies</a>.
+						</label>
+					</div>
+					<div class="mb-4">
+						<button type="submit" class="btn btn-primary d-block w-100 btn-lg h-45px fs-13px">Regístrate</button>
+					</div>
+					<div class="mb-4 pb-5">
+						¿Ya estás registrado? Haz clic <a href="{% url 'Iniciar_Sesion' %}">aquí</a> para ingresar.
+					</div>
+					<hr class="bg-gray-600 opacity-2" />
+					<p class="text-center text-gray-600">
+						&copy; Finishing School todos los derechos reservados 2022
+					</p>
+				</div>
+			</div>											
+		</form>
+		
+	</div>
+	<!-- END register-content -->
+</div>
+<!-- END register-container -->
+{% endblock %}

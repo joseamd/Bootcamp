@@ -1,0 +1,536 @@
+{% extends "campus/base_campus.html" %}
+{% block title %}Bootcamp: {{curso}} {% endblock title %}
+{%load static %}
+{% block extra_css %}
+
+{% endblock extra_css %}
+
+{% block content %}
+
+    <!-- BEGIN #content -->
+    <div id="content" class="app-content">
+        <!-- BEGIN breadcrumb -->
+        <ol class="breadcrumb float-xl-end">
+            <li class="breadcrumb-item"><a href="{% url 'Campus' %}">Inicio Campus</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'Mis_bootcamp' %}">Mis Bootcamps</a></li>
+            <li class="breadcrumb-item active"><a>{{curso}}</a></li>
+            {% if user.is_superuser or user.groups.all.0.name == 'permisos_empresa' %}
+            <li class="breadcrumb-item"><a href="{% url 'Asistencia_bootcamp' curso.id %}">Gestión Curso</a></li>
+            {% endif %}
+        </ol>
+        <!-- END breadcrumb -->
+        <!-- BEGIN page-header -->
+        <h1 class="page-header">{{curso}}</h1>
+        <!-- END page-header -->
+
+        <!-- BEGIN panel-body -->
+        <div class="panel-body">
+            <!-- BEGIN nav-tabs -->
+            <ul id="ioniconsTab" class="nav nav-pills mb-3">
+                <li class="nav-item">
+                  <a href="#Contenido" data-bs-toggle="tab" class="nav-link active d-flex align-items-center">
+                    <ion-icon name="aperture-outline" class="fs-18px"></ion-icon>
+                    <span class="ms-2">Contenido</span>&nbsp;
+                  </a>
+                </li>
+                
+                {% if user.is_superuser or user.groups.all.0.name == 'permisos_estudiante' %}
+                <li class="nav-item ms-2">
+                  <a href="#Tareas" data-bs-toggle="tab" class="nav-link d-flex align-items-center">
+                    <ion-icon name="aperture" class="fs-18px"></ion-icon>
+                    <span class="ms-2">Tareas</span>&nbsp;
+                  </a>
+                </li>
+                <li class="nav-item ms-2">
+                  <a href="#Calificaciones" data-bs-toggle="tab" class="nav-link d-flex align-items-center">
+                    <ion-icon name="aperture-sharp" class="fs-18px"></ion-icon>
+                    <span class="ms-2">Calificaciones</span>&nbsp;
+                  </a>
+                </li>
+                {% endif %}
+                
+                <li class="nav-item ms-2">
+                  <a href="#Participantes" data-bs-toggle="tab" class="nav-link d-flex align-items-center">
+                    <ion-icon name="aperture" class="fs-18px"></ion-icon>
+                    <span class="ms-2">Participantes</span>&nbsp;
+                  </a>
+                </li>
+                
+                {% if user.is_superuser or user.groups.all.0.name == 'permisos_empresa' %}
+                <!-- 
+                <li class="nav-item ms-2">
+                  <a href="#Gestion_notas" data-bs-toggle="tab" class="nav-link d-flex align-items-center">
+                    <ion-icon name="aperture-sharp" class="fs-18px"></ion-icon>
+                    <span class="ms-2">Gestión de Notas</span>&nbsp;
+                  </a>
+                </li>
+                <li class="nav-item ms-2">
+                  <a href="#Asistencias" data-bs-toggle="tab" class="nav-link d-flex align-items-center">
+                    <ion-icon name="aperture-sharp" class="fs-18px"></ion-icon>
+                    <span class="ms-2">Asistencia</span>&nbsp;
+                  </a>
+                </li>
+                <li class="nav-item ms-2">
+                  <a href="#Seleccion_estudiantes" data-bs-toggle="tab" class="nav-link d-flex align-items-center">
+                    <ion-icon name="aperture-sharp" class="fs-18px"></ion-icon>
+                    <span class="ms-2">Selección de Estudiantes</span>&nbsp;
+                  </a>
+                </li>
+                -->
+                {% endif %}
+              </ul>
+              
+            <!-- END nav-tabs -->
+
+ <!-- --------------------Tabla Contenido-clase-recursos-asignaciones-------------------------------------------------------- -->
+
+            <hr class="bg-gray-500" />
+            <!-- BEGIN tab-content -->
+            <div id="ioniconsTabContent" class="tab-content rounded-bottom fs-13px">
+                <!-- BEGIN tab-pane -->
+                <div class="tab-pane fade show active" id="Contenido">
+                    <!-- BEGIN row -->
+                    <div class="row">
+                        <!-- BEGIN col-8 -->
+                        <div class="col-xl-8" style="width: 800px">
+                            <!-- BEGIN panel -->
+                            {% for clase in clases %}                                   
+                            <div class="panel panel-inverse" data-sortable-id="offcanvas-1">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">{{clase.titulo}}, Publicado: {{clase.created_at|date:"d M Y"}}</h4>
+                                    <div class="panel-heading-btn">
+                                        <a href="javascript:;" class="btn btn-xs btn-icon btn-default" data-toggle="panel-expand"><i class="fa fa-expand"></i></a>
+                                        <a href="javascript:;" class="btn btn-xs btn-icon btn-primary" data-toggle="panel-reload"><i class="fa fa-redo"></i></a>
+                                        <a href="javascript:;" class="btn btn-xs btn-icon btn-warning" data-toggle="panel-collapse"><i class="fa fa-minus"></i></a>
+                                        {% if user.is_superuser or user.groups.all.0.name == 'permisos_empresa' and clase.bootcamp.autor.pk == user.pk %}
+                                        <a href="#" onclick="abrir_modal_gestion('/campus/edit_clase/{{clase.pk}}/','{{id_bootcamp}}' )" title="Editar Clase" class="btn btn-xs btn-icon btn-success" >
+                                            <i class="fa-solid fa-pen-to-square"></i></a>                                            
+                                        <a href="#" onclick="borrar_clase_alert('{{clase.pk}}','{{clase.titulo}}')" title="Borrar Clase" class="btn btn-xs btn-icon btn-danger" > 
+                                            <i class="fa fa-times"></i></a>
+                                        {% endif %}
+                                        
+                                    </div>
+                                </div>                                    
+                                <div class="panel-body">
+                                    <p>
+                                        {{clase.contenido}}
+                                    </p>
+                                    {% for recurso in clase.recurso.all %}
+                                    <hr class="bg-gray-500">
+                                    <div class="panel-heading">
+                                        <div class="col-lg-1">
+                                            <i class="fa-solid fa-file fa-4x text-dark"></i>
+                                        </div> 
+                                        <h4 class="panel-title">
+                                            RECURSO:  {{recurso.titulo}}, Publicado: {{recurso.created_at|date:"d M Y"}}</h4>
+                                        <div class="panel-heading-btn">
+                                            {% if user.is_superuser or user.groups.all.0.name == 'permisos_empresa' and clase.bootcamp.autor.pk == user.pk %}
+                                            <a href="#" onclick="abrir_modal_gestion('/campus/edit_recurso/{{recurso.pk}}/','{{id_bootcamp}}' )" title="Editar Asignación" class="btn btn-xs btn-icon btn-success" >
+                                                <i class="fa-solid fa-pen-to-square fa-fw mx-1 opacity-5"></i></a>                                            
+                                            <a href="#" onclick="borrar_registro_alert('{{recurso.pk}}','{{recurso.titulo}}')" title="Borrar Asignación" class="btn btn-xs btn-icon btn-danger" > 
+                                                <i class="fa-solid fa-trash-can fa-fw mx-1 opacity-5"></i></a>
+                                            {% endif %} 
+                                        </div>                                            
+                                    </div> 
+                                    <div class="col-lg-9">
+                                        {{recurso.contenido}}
+                                    </div>
+                                    <div class="col-lg-9">
+                                        Archivo: 
+                                        <a href="{{recurso.upload.url}}">{{recurso.upload}}</a>
+                                    </div>                                        
+                                    {% endfor %}
+                                    
+                                    {% if user.is_superuser or user.groups.all.0.name == 'permisos_empresa' and clase.bootcamp.autor.pk == user.pk %}
+                                        <hr class="bg-gray-500">
+                                        <div class="row align-items-center">
+                                            <div class="text-center">									
+                                                <div>
+                                                    <!-- <button type="button" class="btn btn-primary" data-bs-toggle="offcanvas" href="#">
+                                                        <i class="far fa-square-plus fa-fw mx-1 opacity-5"></i> Agregar Recurso
+                                                    </button> -->
+                                                    <button title="Nuevo Recurso" onclick="abrir_modal_gestion('/campus/add_recurso/{{clase.pk}}/','{{id_bootcamp}}' )" class="btn btn-primary">
+                                                        <i class="far fa-square-plus fa-fw mx-1 opacity-5"></i> Nuevo Recurso
+                                                    </button>
+                                                </div>
+                                            </div>                                                                                          	
+                                        </div>     
+                                    {% endif %}                                
+                                    
+                                    {% for asignacion in clase.asignacion.all %}
+                                    <hr class="bg-gray-500">
+                                    <div class="panel-heading">
+                                        <div class="col-lg-1">
+                                            <i class="fa-solid fa-file-arrow-up fa-4x text-danger"></i>
+                                        </div> 
+                                        <h4 class="panel-title">
+                                            ASIGNACIÓN:  {{asignacion.titulo}}, Publicado: {{asignacion.created_at|date:"d M Y"}}</h4>
+                                        <div class="panel-heading-btn">
+                                            {% if user.is_superuser or user.groups.all.0.name == 'permisos_empresa' and clase.bootcamp.autor.pk == user.pk %}
+                                            <a href="#" onclick="abrir_modal_gestion('/campus/edit_asignacion/{{asignacion.pk}}/','{{id_bootcamp}}' )" title="Editar Asignación" class="btn btn-xs btn-icon btn-success" >
+                                                <i class="fa-solid fa-pen-to-square fa-fw mx-1 opacity-5"></i></a>                                            
+                                            <a href="#" onclick="borrar_asignacion_alert('{{asignacion.pk}}','{{asignacion.titulo}}')" title="Borrar Asignación" class="btn btn-xs btn-icon btn-danger" > 
+                                                <i class="fa-solid fa-trash-can fa-fw mx-1 opacity-5"></i></a>
+                                            {% endif %} 
+                                        </div>                                            
+                                    </div> 
+                                    <div class="col-lg-9">
+                                        {{asignacion.contenido}}
+                                    </div>
+                                    <div class="col-lg-9">
+                                        Archivo: 
+                                        <a href="{{asignacion.upload.url}}">{{asignacion.upload}}</a>
+                                    </div>                                              
+                                    {% endfor %}                                        
+                                    
+                                    {% if user.is_superuser or user.groups.all.0.name == 'permisos_empresa' and clase.bootcamp.autor.pk == user.pk %}
+                                        <hr class="bg-gray-500">
+                                        <div class="row">
+                                            <div class="text-center">									
+                                                <div>                                                       
+                                                    <button onclick="abrir_modal_gestion('/campus/add_asignacion/{{clase.pk}}/','{{id_bootcamp}}' )" class="btn btn-primary">
+                                                        <i class="far fa-square-plus fa-fw mx-1 opacity-5"></i> Nueva Asignación
+                                                    </button>
+                                                </div>
+                                            </div>                                            	
+                                        </div>
+                                    {% endif %}                                       
+                                </div>
+                            </div>                                  
+                            {% endfor %}                                  
+                            <!-- END panel -->                                
+                        </div>
+                        <!-- END col-8 -->
+                        <!-- BEGIN col-4 -->
+                            <div class="col-xl-4" style="width: 200px">
+                                {% if user.is_superuser or user.groups.all.0.name == 'permisos_empresa' and curso.autor.pk == user.pk %}
+                                <div class="lead mb-20px">                                    
+                                    <button onclick="abrir_modal_gestion('/campus/add_clase/{{id_bootcamp}}/','{{id_bootcamp}}' )" class="btn btn-dark">
+                                        <i class="far fa-square-plus fa-fw mx-1 opacity-5"></i> Nueva Clase
+                                    </button>                                                                                                       
+                                </div>
+                                {% endif %} 
+                                <div class="page-header"><b>Síganos</b></div>
+                                <div class="clearfix mb-15px">
+                                    <a href="https://www.facebook.com/universidaddelvalle/" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-facebook"></span></a>
+                                    <a href="https://www.youtube.com/user/universidaddelvalle1" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-youtube"></span></a>
+                                    <a href="https://www.instagram.com/univallecol/?hl=es" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-instagram"></span></a>
+                                    <a href="https://twitter.com/UnivalleCol?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-twitter"></span></a>
+                                    <a href="https://www.linkedin.com/school/universidad-del-valle/?viewAsMember=true" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-linkedin"></span></a>
+                                </div>                                
+                            </div>
+                        <!-- END col-4 -->
+                    </div>
+                    <!-- END row -->
+                </div>
+                <!-- END tab-pane -->
+
+ <!-- --------------------Tabla Participantes-------------------------------------------------------- -->
+
+                <!-- BEGIN tab-pane -->
+                <div class="tab-pane fade" id="Participantes">
+                    <!-- BEGIN row -->
+                    <div class="row">
+                        <!-- BEGIN col-8 -->
+                        <div class="col-xl-8" style="width: 800px">
+                            <!-- BEGIN panel -->
+                            <div class="panel panel-inverse">
+                                <!-- BEGIN panel-heading -->
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">Estudiantes Matriculados</h4>
+                                    <div class="panel-heading-btn">
+                                        <a href="javascript:;" class="btn btn-xs btn-icon btn-default" data-toggle="panel-expand"><i class="fa fa-expand"></i></a>
+                                        <a href="javascript:;" class="btn btn-xs btn-icon btn-success" data-toggle="panel-reload"><i class="fa fa-redo"></i></a>
+                                        <!-- <a href="javascript:;" class="btn btn-xs btn-icon btn-warning" data-toggle="panel-collapse"><i class="fa fa-minus"></i></a> -->
+                                        <!-- <a href="javascript:;" class="btn btn-xs btn-icon btn-danger" data-toggle="panel-remove"><i class="fa fa-times"></i></a> -->
+                                    </div>
+                                </div>
+                                <!-- END panel-heading -->
+                                <!-- BEGIN table-responsive -->                              
+                                <div class="panel-body table-responsive" >
+                                    <table id=""class="display table table-striped table-bordered text-nowrap align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th class="text-nowrap">Nombre / Apellidos</th>
+                                                <th class="text-nowrap">Correo</th>
+                                                <th class="text-nowrap">Último acceso</th>
+                                                <th>Acción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for estudiante in lista_estudiantes %}
+                                            <tr>
+                                                <td> <img src="{{estudiante.usuario.profile.photo.url}}" class="rounded-circle" width="30" height="30" alt="" />  </td>
+                                                <td>{{ estudiante.usuario.first_name}} {{ estudiante.usuario.last_name }}</td>
+                                                <td><code>{{ estudiante.usuario.email}}</code></td>
+                                                <td>{{ estudiante.usuario.last_login }}</td>
+                                                <td><button onclick="abrir_modal_notificacion('/campus/notificacion/{{user.pk}}/{{estudiante.usuario.pk}}/','{{estudiante.mensaje}}' )" class="btn btn-sm btn-primary me-1">Enviar Mensaje</button></td>
+                                            </tr>
+                                            {% endfor %}                                           
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- END panel-body -->
+                            </div>
+                            <!-- END panel -->
+                        </div>
+                        <!-- END col-8 -->
+                        <!-- BEGIN col-4 -->
+                        <div class="col-xl-4" style="width: 200px">
+                            <div class="lead mb-20px">
+                                <!-- <p class="mb-5px">Social Sign-In Buttons made in pure CSS based on Bootstrap and Font Awesome!</p> -->
+                                <!-- <a href="https://lipis.github.io/bootstrap-social/" target="_blank" class="btn btn-sm btn-dark">View Official Website <i class="fa fa-arrow-right ms-5px"></i></a> -->
+                            </div>
+                            <div class="page-header"><b>Síganos</b></div>
+                            <div class="clearfix mb-15px">
+                                <a href="https://www.facebook.com/universidaddelvalle/" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-facebook"></span></a>
+                                <a href="https://www.youtube.com/user/universidaddelvalle1" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-youtube"></span></a>
+                                <a href="https://www.instagram.com/univallecol/?hl=es" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-instagram"></span></a>
+                                <a href="https://twitter.com/UnivalleCol?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-twitter"></span></a>
+                                <a href="https://www.linkedin.com/school/universidad-del-valle/?viewAsMember=true" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-linkedin"></span></a>
+                            </div>                            
+                        </div>
+                        <!-- END col-4 -->
+                    </div>
+                    <!-- END row -->                    
+                </div>
+                <!-- END tab-pane -->                
+                
+ <!-- --------------------Tabla Tareas-------------------------------------------------------- -->
+            
+            <!-- BEGIN tab-pane -->
+            <div class="tab-pane fade" id="Tareas">
+                <div class="row">
+                    <!-- BEGIN col-8 -->
+                    <div class="col-xl-8" style="width: 800px">
+                        <!-- BEGIN panel -->
+                        <div class="panel panel-inverse">
+                            <!-- BEGIN panel-heading -->
+                            <div class="panel-heading">
+                                <h4 class="panel-title">Asignaciones </h4>
+                                <div class="panel-heading-btn">
+                                    <a href="javascript:;" class="btn btn-xs btn-icon btn-default" data-toggle="panel-expand"><i class="fa fa-expand"></i></a>
+                                    <a href="javascript:;" class="btn btn-xs btn-icon btn-success" data-toggle="panel-reload"><i class="fa fa-redo"></i></a>
+                                    <!-- <a href="javascript:;" class="btn btn-xs btn-icon btn-warning" data-toggle="panel-collapse"><i class="fa fa-minus"></i></a> -->
+                                    <!-- <a href="javascript:;" class="btn btn-xs btn-icon btn-danger" data-toggle="panel-remove"><i class="fa fa-times"></i></a> -->
+                                </div>
+                            </div>
+                            <!-- END panel-heading -->
+                            <!-- BEGIN table-responsive -->
+                            <div class="table-responsive">
+                                <table class="table table-striped table-condensed text-nowrap m-0 table-panel">
+                                    <thead>
+                                        <tr>
+                                            <th>Id_Asig</th>
+                                            <th>Asignaciones</th>  
+                                            <th class="text-center">Acciones</th>                                            
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for tarea in tareas %}                                            
+                                        <tr>
+                                            <td>{{ tarea.pk}}</td>
+                                            <td><a href="{{tarea.upload.url}}">{{tarea.titulo}}</a></td> 
+                                            <td class="text-center">
+                                                {% if tarea.entrega.all.get.usuario.pk != user.pk %}
+                                                <a href="#" onclick="abrir_modal_gestion('/campus/add_entrega/{{tarea.pk}}/','{{id_bootcamp}}' )" title="Agregar Entrega" class="btn btn-primary btn-xs add-tooltip">
+                                                    <i class="far fa-square-plus"></i> 
+                                                </a>
+                                                {% else %}
+                                                <a href="#" title="Entregado" class="btn btn-success btn-xs add-tooltip" >
+                                                    <i class="fa fa-check-square"></i> Entregado</a>     
+                                                {% endif %}  
+                                            </td>                                                                                            
+                                        </tr>
+                                        {% endfor %}                                                                                                                         
+                                                                                    
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- END table-responsive -->
+
+                        </div>
+                        <!-- END panel -->
+                    </div>
+                    <!-- END col-8 -->
+
+                    <!-- BEGIN col-4 -->
+                    <div class="col-xl-4" style="width: 200px">
+                        <div class="lead mb-20px">
+                            <!-- <p class="mb-5px">Social Sign-In Buttons made in pure CSS based on Bootstrap and Font Awesome!</p> -->
+                            <!-- <a href="https://lipis.github.io/bootstrap-social/" target="_blank" class="btn btn-sm btn-dark">View Official Website <i class="fa fa-arrow-right ms-5px"></i></a> -->
+                        </div>
+                        <div class="page-header"><b>Síganos</b></div>
+                        <div class="clearfix mb-15px">
+                            <a href="https://www.facebook.com/universidaddelvalle/" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-facebook"></span></a>
+                            <a href="https://www.youtube.com/user/universidaddelvalle1" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-youtube"></span></a>
+                            <a href="https://www.instagram.com/univallecol/?hl=es" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-instagram"></span></a>
+                            <a href="https://twitter.com/UnivalleCol?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-twitter"></span></a>
+                            <a href="https://www.linkedin.com/school/universidad-del-valle/?viewAsMember=true" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-linkedin"></span></a>
+                        </div>
+                        
+                    </div>
+                    <!-- END col-4 -->
+
+                    
+            <!-- --------------------Tabla Entregas Realizadas-------------------------------------------------------- -->
+
+                    <!-- BEGIN col-8 -->
+                    <div class="col-xl-8" style="width: 800px">
+                        <!-- BEGIN panel -->
+                        <div class="panel panel-inverse">
+                            <!-- BEGIN panel-heading -->
+                            <div class="panel-heading">
+                                <h4 class="panel-title">Entregas Realizadas</h4>
+                                <div class="panel-heading-btn">
+                                    <a href="javascript:;" class="btn btn-xs btn-icon btn-default" data-toggle="panel-expand"><i class="fa fa-expand"></i></a>
+                                    <a href="javascript:;" class="btn btn-xs btn-icon btn-success" data-toggle="panel-reload"><i class="fa fa-redo"></i></a>
+                                    <!-- <a href="javascript:;" class="btn btn-xs btn-icon btn-warning" data-toggle="panel-collapse"><i class="fa fa-minus"></i></a> -->
+                                    <!-- <a href="javascript:;" class="btn btn-xs btn-icon btn-danger" data-toggle="panel-remove"><i class="fa fa-times"></i></a> -->
+                                </div>
+                            </div>
+                            <!-- END panel-heading -->
+                            <!-- BEGIN table-responsive -->
+                            <div class="table-responsive">
+                                <table class="table table-striped table-condensed text-nowrap m-0 table-panel">
+                                    <thead>
+                                        <tr>
+                                            <th>Id_Asig</th>                                                    
+                                            <th>Fecha de Envío</th>                                            
+                                            <th>Última modificación	</th>
+                                            <th>Entregas</th>
+                                            <th class="text-center">Acciones</th>                                            
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for entrega in entregas %}                                            
+                                        <tr>
+                                            <td>{{ entrega.asignacion.pk}}</td>
+                                            <td>{{ entrega.created_at}}</td> 
+                                            <td>{{ entrega.updated_at}}</td> 
+                                            <td><a href="{{entrega.upload.url}}">{{entrega.asignacion.titulo}}</a></td> 
+                                            <td class="text-center">
+                                                <a href="#" onclick="abrir_modal_gestion('/campus/edit_entrega/{{entrega.pk}}/','{{id_bootcamp}}' )" title="Editar Entrega" class="btn btn-success btn-xs add-tooltip" >
+                                                    <i class="fa-solid fa-pen-to-square"></i></a>                                                      
+                                            </td>                                                                                            
+                                        </tr>
+                                        {% endfor %}                                                                                                                         
+                                                                                    
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- END table-responsive -->
+
+                        </div>
+                        <!-- END panel -->
+                    </div>
+                    <!-- END col-8 -->
+                    
+                </div>
+                <!-- END row -->
+                
+            </div>
+            <!-- END tab-pane -->  
+
+                        
+ <!-- --------------------Tabla Calificaciones-------------------------------------------------------- -->
+
+            <!-- BEGIN tab-pane -->
+            <div class="tab-pane fade" id="Calificaciones">
+                <div class="row">
+                    <!-- BEGIN col-8 -->
+                    <div class="col-xl-8" style="width: 800px">
+                        <!-- BEGIN panel -->
+                        <div class="panel panel-inverse">
+                            <!-- BEGIN panel-heading -->
+                            <div class="panel-heading">
+                                <h4 class="panel-title">Calificaciones </h4>
+                                <div class="panel-heading-btn">
+                                    <a href="javascript:;" class="btn btn-xs btn-icon btn-default" data-toggle="panel-expand"><i class="fa fa-expand"></i></a>
+                                    <a href="javascript:;" class="btn btn-xs btn-icon btn-success" data-toggle="panel-reload"><i class="fa fa-redo"></i></a>
+                                    <!-- <a href="javascript:;" class="btn btn-xs btn-icon btn-warning" data-toggle="panel-collapse"><i class="fa fa-minus"></i></a> -->
+                                    <!-- <a href="javascript:;" class="btn btn-xs btn-icon btn-danger" data-toggle="panel-remove"><i class="fa fa-times"></i></a> -->
+                                </div>
+                            </div>
+                            <!-- END panel-heading -->
+                            <!-- BEGIN table-responsive -->
+                            <div class="panel-body table-responsive" >
+                                <!-- <table class="table table-striped table-condensed text-nowrap m-0 table-panel"> -->
+                                <table id="data-table-calificaciones"class="display table table-striped table-bordered text-nowrap align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-nowrap"> Id </th>
+                                            <th class="text-nowrap"> Asignaciones </th>
+                                            <th class="text-nowrap"> Comentario </th>
+                                            <th class="text-center"> Nota </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for entrega in entregas %}                                            
+                                        <tr>
+                                            <td>{{ entrega.pk}}</td> 
+                                            <td>{{ entrega.asignacion.titulo}}</td> 
+                                            <td><code>{{ entrega.nota.all.get.comentario}}</code></td>
+                                            <td class="text-center">{{ entrega.nota.all.get.calificacion}}</td>                                                                                             
+                                        </tr>
+                                        {% endfor %}                                            
+                                        <tr>
+                                            <th>Nota Final</th>
+                                            <td></td>
+                                            <td></td>
+                                            <th class="text-center">{{nota_final}}</th>                                                
+                                        </tr>                                                                                    
+                                    </tbody>
+                                </table>
+                                {% if certificado.all.get.status %}
+                                <hr class="bg-gray-500">
+                                    <div class="text-center">
+                                        <a href="{% url 'Certificado_bootcamp' 1 %}" class="btn btn-primary btn-lg btn-block">Generar Certificado</a>									
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <!-- END table-responsive -->
+
+                        </div>
+                        <!-- END panel -->
+                    </div>
+                    <!-- END col-8 -->
+                    <!-- BEGIN col-4 -->
+                    <div class="col-xl-4" style="width: 200px">
+                        <div class="lead mb-20px">
+                            <!-- <p class="mb-5px">Social Sign-In Buttons made in pure CSS based on Bootstrap and Font Awesome!</p> -->
+                            <!-- <a href="https://lipis.github.io/bootstrap-social/" target="_blank" class="btn btn-sm btn-dark">View Official Website <i class="fa fa-arrow-right ms-5px"></i></a> -->
+                        </div>
+                        <div class="page-header"><b>Síganos</b></div>
+                        <div class="clearfix mb-15px">
+                            <a href="https://www.facebook.com/universidaddelvalle/" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-facebook"></span></a>
+                            <a href="https://www.youtube.com/user/universidaddelvalle1" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-youtube"></span></a>
+                            <a href="https://www.instagram.com/univallecol/?hl=es" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-instagram"></span></a>
+                            <a href="https://twitter.com/UnivalleCol?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-twitter"></span></a>
+                            <a href="https://www.linkedin.com/school/universidad-del-valle/?viewAsMember=true" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-linkedin"></span></a>
+                        </div>                        
+                    </div>
+                    <!-- END col-4 -->
+                </div>
+                <!-- END row -->                
+            </div>
+            <!-- END tab-pane -->            
+
+
+        </div>
+        <!-- END tab-content -->
+    </div>
+    <!-- END panel-body -->               
+</div>
+<!-- END #content -->
+
+<!--IniciaModal-->
+<div class="modal fade" id="modalGestion" role="dialog" ></div>
+<!--EndModal-->
+
+{% endblock %}
+{% block extrajs %}
+
+
+{% endblock extrajs %}

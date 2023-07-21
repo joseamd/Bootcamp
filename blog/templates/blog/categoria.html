@@ -1,0 +1,160 @@
+{%extends "home/base.html" %}
+{% block title %} Lista de Blogs Categorias {% endblock title %}
+{%load static %}
+
+{% block content %}
+
+
+    <!-- begin #content -->
+	<div id="content" class="content">
+		<!-- begin container -->
+		<div class="container">
+			<!-- begin row -->
+			<div class="row row-space-30">
+				<!-- begin col-9 -->
+				<div class="col-lg-9">
+					<!-- begin post-list -->
+					<div class="post-list post-grid post-grid-2">
+						{% for post in blogs %}
+						<div class="post-li">
+							<!-- begin post-content -->
+							<div class="post-content">
+								<!-- begin post-image -->
+								<div class="post-image">
+									<a href="{{post.imagen.url}}">
+										<div class="post-image-cover" style="background-image: url({{post.imagen.url}})"></div>
+									</a>
+								</div>
+								<!-- end post-image -->
+								<!-- begin post-info -->
+								<div class="post-info">
+									<h4 class="post-title">
+										<a href="#">{{post.titulo}}</a>
+									</h4>
+									<div class="post-by">
+										Publicado por <a href="#">{{post.autor}}</a> <span class="divider">|</span> {{post.created|date:"d M Y"}}
+                                        <span class="divider">|</span> Categoria: {% for categoria in post.categorias.all %}<a href="{% url 'categoria' categoria.id %}">{{categoria.nombre}}</a> {% endfor %} 
+									</div>
+									<div class="post-desc">
+										{{post.contenido}}
+									</div>
+									<div class="read-btn-container">
+										<a href="#" class="read-btn">Read More <i class="fa fa-angle-double-right"></i></a>
+									</div>
+								</div>
+								<!-- end post-info -->
+							</div>
+							<!-- end post-content -->
+						</div>
+                        {% endfor %}						
+					</div>
+					<!-- end post-list -->
+
+					<div class="section-container">
+						<!-- begin pagination -->
+						<div class="pagination-container">
+                            <ul class="pagination justify-content-center">
+                                {% if blogs.has_previous %}
+                                <li class="page-item enable"><a class="page-link" href="/blog/page/{{blogs.previous_page_number}}">Prev</a></li>
+                                {% else %}
+                                <li class="page-item disabled"><a class="page-link" href="">Prev</a></li>							
+                                {% endif %}
+                                {% for i in page_range %}
+                                    {% if blogs.number == i %}	
+                                        <li class="page-item active"><a class="page-link" href="#">{{i}}</a></li>
+                                    {% else %}
+                                        <li class="page-item "><a class="page-link" href="/blog/page/{{i}}/">{{i}}</a></li>
+                                    {% endif %}													
+                                {% endfor %}
+    
+                                {% if cursos.has_next %}
+                                <li class="page-item"><a class="page-link" href="/blog/page/{{blogs.next_page_number}}">Next</a></li>
+                                {% else %}
+                                <li class="page-item disabled"><a class="page-link" href="">Next</a></li>
+                                {% endif %}
+                                <li class="page-item"><a class="page-link" href="/blog/page/{{blogs.paginator.num_pages}}">Final</a></li>
+                                
+                            </ul>
+                        </div>
+						<!-- end pagination -->
+					</div>
+				</div>
+				<!-- end col-9 -->
+				<!-- begin col-3 -->
+                <div class="col-lg-3">
+                    <!-- begin section-container -->
+                    <div class="section-container">					
+                        <form action="{% url 'Buscar_blog' %}" method="GET">
+                            <div class="input-group sidebar-search">
+                                <input type="text" name="blog" class="form-control" placeholder="Buscar Blog..." />
+                                <button class="btn btn-dark" type="submit"><i class="fa fa-search"></i></button>							
+                            </div>						
+                        </form>
+                        {% if mensaje_error %}                                              
+                            <div class="alert alert-danger d-flex align-items-center" role="alert">
+                                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                                <strong>{{mensaje_error}}</strong>
+                                <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+                            </div>                                                                          
+                        {% endif %}     
+                    </div>
+                    <!-- end section-container --> 
+                    
+                    <!-- begin section-container -->
+                    <div class="section-container">
+                        <h4 class="section-title"><span>Categorías Bootcamp</span></h4>
+                        <ul class="sidebar-list">
+                            {% for categ in tipo_categBd %}
+                                <li><a href="{% url 'Bootcamp' pagina=1 %}">{{categ.nombre}}</a></li>
+                            {% endfor %}							
+                        </ul>
+                    </div>
+                    <!-- end section-container -->
+                    <!-- begin section-container -->
+                    <div class="section-container">
+                        <h4 class="section-title"><span>Blogs Recientes</span></h4>
+                        <ul class="sidebar-recent-post">
+                            {%for blog in blogs %}
+                            <li>
+                                <div class="info">
+                                    <h4 class="title"><a href="{% url 'Blog' pagina=1 %}">{{blog.titulo}}</a></h4>
+                                    <div class="date">{{blog.created|date:'d N Y'}}</div>
+                                </div>
+                            </li>	
+                            {% endfor %}					
+                        </ul>                        
+                    </div>
+                    <!-- end section-container -->
+                    <!-- begin section-container -->
+                    <div class="section-container">
+                        <h4 class="section-title"><span>Categorías Blogs:</span></h4>
+                            <ul class="sidebar-list">
+                                {% for categoria in categBd %}
+                                    <li><a href="{% url 'categoria' categoria.id %}">{{categoria.nombre}}</a></li>
+                                {% endfor %}
+                            </ul>
+                    </div>
+                    <!-- end section-container -->
+                    <!-- begin section-container -->
+                    <div class="section-container">
+                        <h4 class="section-title"><span>Síganos</span></h4>
+                        <ul class="sidebar-social-list">
+                            <li><a href="https://www.facebook.com/universidaddelvalle/"><i class="fab fa-facebook"></i></a></li>
+                            <li><a href="https://www.youtube.com/user/universidaddelvalle1"><i class="fab fa-youtube"></i></a></li>
+                            <li><a href="https://www.instagram.com/univallecol/?hl=es"><i class="fab fa-instagram"></i></a></li>
+                            <li><a href="https://twitter.com/UnivalleCol?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor"><i class="fab fa-twitter"></i></a></li>
+                            <li><a href="https://www.linkedin.com/school/universidad-del-valle/?viewAsMember=true"><i class="fab fa-linkedin"></i></a></li>
+                        </ul>
+                    </div>
+                    <!-- end section-container -->
+
+                </div>
+                <!-- end col-3 -->
+            </div>
+            <!-- end row -->
+        </div>
+        <!-- end container -->
+    </div>
+    <!-- end #content -->              
+
+{% endblock %}

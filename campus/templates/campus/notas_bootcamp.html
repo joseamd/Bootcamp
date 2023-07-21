@@ -1,0 +1,142 @@
+{% extends "campus/base_campus.html" %}
+{% block title %}Bootcamp: {{curso}} {% endblock title %}
+{%load static %}
+{% block extra_css %}
+
+{% endblock extra_css %}
+
+{% block content %}
+
+{% if user.is_superuser or user.groups.all.0.name == 'permisos_empresa' %}
+
+    <!-- BEGIN #content -->
+    <div id="content" class="app-content">
+        <!-- BEGIN breadcrumb -->
+        <ol class="breadcrumb float-xl-end">
+            <li class="breadcrumb-item"><a href="{% url 'Campus' %}">Inicio Campus</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'Mis_bootcamp' %}">Mis Bootcamps</a></li>
+            <li class="breadcrumb-item active"><a href="{% url 'Contenido_bootcamp' curso.id %}">{{curso}}</a></li>
+            {% if user.is_superuser or user.groups.all.0.name == 'permisos_empresa' %}
+            <li class="breadcrumb-item"><a>Gestión Curso</a></li>
+            {% endif %}
+        </ol>
+        <!-- END breadcrumb -->
+        <!-- BEGIN page-header -->
+        <h1 class="page-header">{{curso}}</h1>
+        <!-- END page-header -->
+
+        <!-- BEGIN panel-body -->
+        <div class="panel-body">
+            <!-- BEGIN nav-tabs -->
+            <ul id="ioniconsTab" class="nav nav-pills mb-3">                
+                <li class="nav-item ms-2"><a href="{% url 'Asistencia_bootcamp' curso.id %}"  class="nav-link d-flex align-items-center"><ion-icon name="aperture-sharp" class="fs-18px"></ion-icon><span class="ms-2">Asistencia de Estudiantes</span>&nbsp;</a></li>
+                <li class="nav-item ms-2"><a href="#Gestion_notas" data-bs-toggle="tab" class="nav-link active d-flex align-items-center"><ion-icon name="aperture-sharp" class="fs-18px"></ion-icon><span class="ms-2">Notas de Estudiantes</span>&nbsp;</a></li>
+                <li class="nav-item ms-2"><a href="{% url 'Seleccion_estudiante' curso.id %}" class="nav-link d-flex align-items-center"><ion-icon name="aperture-sharp" class="fs-18px"></ion-icon><span class="ms-2">Selección de Estudiantes</span>&nbsp;</a></li>
+                <li class="nav-item ms-2"><a href="{% url 'Bootcamp_report' curso.id %}" class="nav-link d-flex align-items-center"><ion-icon name="aperture-sharp" class="fs-18px"></ion-icon><span class="ms-2">Generar Reporte</span>&nbsp;</a></li>
+
+            </ul>
+            <!-- END nav-tabs -->
+
+             <!-- --------------------Tabla Gestion_notas-------------------------------------------------------- -->
+                
+            {% if user.is_superuser or curso.autor.pk == user.pk and user.groups.all.0.name == 'permisos_empresa' %}
+            <hr class="bg-gray-500" />
+            <!-- BEGIN tab-content -->
+            <div id="ioniconsTabContent" class="tab-content rounded-bottom fs-13px">
+             <!-- BEGIN tab-pane -->
+             <div class="tab-pane fade show active" id="Gestion_notas">
+                 <div class="row">
+                        <!-- BEGIN panel -->
+                        <div class="panel panel-inverse">
+                            <!-- BEGIN panel-heading -->
+                            <div class="panel-heading">
+                                <h4 class="panel-title">Gestión de Notas </h4>
+                                <div class="panel-heading-btn">
+                                    <a href="javascript:;" class="btn btn-xs btn-icon btn-default" data-toggle="panel-expand"><i class="fa fa-expand"></i></a>
+                                    <a href="javascript:;" class="btn btn-xs btn-icon btn-success" data-toggle="panel-reload"><i class="fa fa-redo"></i></a>
+                                    <!-- <a href="javascript:;" class="btn btn-xs btn-icon btn-warning" data-toggle="panel-collapse"><i class="fa fa-minus"></i></a> -->
+                                    <!-- <a href="javascript:;" class="btn btn-xs btn-icon btn-danger" data-toggle="panel-remove"><i class="fa fa-times"></i></a> -->
+                                </div>
+                            </div>
+                            <!-- END panel-heading -->
+                            
+                            <!-- BEGIN table-responsive -->
+                            <div class="panel-body table-responsive">
+                                <table id="data-table-combine" class="display table table-striped table-bordered text-nowrap align-middle">
+                                <!-- <table id="data-table-fixed-header" class="table table-striped table-bordered align-middle"> -->
+                                    <thead>
+                                        <tr>
+                                            <th class="text-nowrap">Id</th>
+                                            <th class="text-nowrap">Asignaciones</th>
+                                            <th class="text-nowrap">Estudiante</th>
+                                            <th class="text-nowrap">Entrega</th>
+                                            <th class="text-nowrap text-center">Nota</th>
+                                            <th class="text-center">Opciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for gestion in gestion_notas %}                                            
+                                        <tr class="row'{{ gestion.nota.all.get.id }}'">
+                                            <td>{{ gestion.asignacion.id}}</td>
+                                            <td>{{ gestion.asignacion.titulo}}</td> 
+                                            <td>{{ gestion.usuario.first_name}} {{ gestion.usuario.last_name}}</td>
+                                            <td><a href="{{gestion.upload.url}}">{{gestion.upload}}</a></td>
+                                            <td class="editar_nota text-center">{{ gestion.nota.all.get.calificacion }}</td>
+                                            <td class="text-center">
+                                                <!--acciones - boton adicionar y editar nota de entrega-->
+                                                {% if not gestion.nota.all.get.pk %}
+                                                <a href="#" onclick="abrir_modal_gestion('/campus/add_nota/{{gestion.pk}}/','{{id_bootcamp}}' )" title="Calificar" class="btn btn-primary btn-xs add-tooltip">
+                                                    <i class="far fa-square-plus"></i> 
+                                                </a>
+                                                {% else %}
+                                                <a href="#" onclick="abrir_modal_gestion('/campus/edit_nota/{{gestion.nota.all.get.pk}}/','{{id_bootcamp}}' )" title="Editar Calififación" class="btn btn-success btn-xs add-tooltip" >
+                                                    <i class="fa-solid fa-pen-to-square"></i></a>     
+                                                {% endif %}                                               
+                                            </td>                                                                                            
+                                        </tr>
+                                    {% endfor %}                                                                                    
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- END table-responsive -->
+                        </div>
+                        <!-- END panel -->
+
+                     <!-- BEGIN col-4 -->
+                     <!-- <div class="col-xl-4" style="width: 200px">
+                         <div class="lead mb-20px">
+                         </div>
+                         <div class="page-header"><b>Síganos</b></div>
+                         <div class="clearfix mb-15px">
+                             <a href="https://www.facebook.com/universidaddelvalle/" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-facebook"></span></a>
+                             <a href="https://www.youtube.com/user/universidaddelvalle1" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-youtube"></span></a>
+                             <a href="https://www.instagram.com/univallecol/?hl=es" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-instagram"></span></a>
+                             <a href="https://twitter.com/UnivalleCol?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-twitter"></span></a>
+                             <a href="https://www.linkedin.com/school/universidad-del-valle/?viewAsMember=true" class="btn btn-social-icon btn-facebook float-start me-5px mb-5px"><span class="fab fa-linkedin"></span></a>
+                         </div>                        
+                     </div>                        -->
+                     <!-- END col-4 -->
+                 </div>
+                 <!-- END row -->                
+             </div>
+             <!-- END tab-pane Gestion Notas--> 
+             {% endif %} 
+
+
+            </div>
+            <!-- END tab-content -->
+    </div>
+    <!-- END panel-body -->               
+</div>
+<!-- END #content -->
+
+{% endif %}
+
+<!--IniciaModal-->
+<div class="modal fade" id="modalGestion" role="dialog" ></div>
+<!--EndModal-->
+
+{% endblock %}
+{% block extrajs %}
+
+{% endblock extrajs %}

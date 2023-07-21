@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	{% load static %}
+
+	<meta charset="utf-8" />
+	<title>{% block title %}  {% endblock %}</title>
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+	<meta content="" name="description" />
+	<meta content="" name="author" />
+	
+	<!-- ================== BEGIN core-css ================== -->
+	<link href="{% static 'css/vendor.min.css' %}" rel="stylesheet" />
+	<link href="{% static 'css/default/app.min.css' %}" rel="stylesheet" />	
+	<!-- ================== END core-css ================== -->
+	<!-- ================== BEGIN page-css ================== -->
+	<link href="{% static 'plugins/lightbox2/dist/css/lightbox.css' %}" rel="stylesheet" />
+	<link href="{% static 'plugins/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" />
+	<link href="{% static 'plugins/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" />
+	<link href="{% static 'plugins/datatables.net-fixedheader-bs5/css/fixedHeader.bootstrap5.min.css' %}" rel="stylesheet" />
+	<link href="{% static 'plugins/bootstrap-datepicker/dist/css/bootstrap-datepicker.css' %}" rel="stylesheet" />
+	{% block extra_css %}
+	{% endblock extra_css %}
+	<!-- ================== END page-css ================== -->
+
+</head>
+<body>
+	<!-- BEGIN #loader -->
+	<div id="loader" class="app-loader">
+		<span class="spinner"></span>
+	</div>
+	<!-- END #loader -->
+	
+	<!-- BEGIN #app -->
+	<div id="app" class="app app-header-fixed app-sidebar-fixed">
+		<!-- BEGIN #header -->
+		<div id="header" class="app-header">
+			<!-- BEGIN navbar-header -->
+			<div class="navbar-header">
+				<button type="button" class="navbar-mobile-toggler d-none" data-toggle="app-sidebar-end-mobile">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a href="{% url 'Home' %}" class="navbar-brand ms-0"><span class="navbar-logo"></span> <b>FINISHING SCHOOL BOOTCAMP</b> </a>
+				<button type="button" class="navbar-mobile-toggler d-none" data-bs-toggle="collapse" data-bs-target="#top-navbar">
+					<span class="fa-stack fa-lg">
+						<i class="far fa-square fa-stack-2x"></i>
+						<i class="fa fa-cog fa-stack-1x mt-1px"></i>
+					</span>
+				</button>
+				<button type="button" class="navbar-mobile-toggler d-none" data-toggle="app-top-menu-mobile">
+					<span class="fa-stack fa-lg">
+						<i class="far fa-square fa-stack-2x"></i>
+						<i class="fa fa-cog fa-stack-1x mt-1px"></i>
+					</span>
+				</button>
+				<button type="button" class="navbar-mobile-toggler" data-toggle="app-sidebar-mobile">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+			</div>
+			<!-- END navbar-header -->
+			
+			<!-- BEGIN header-nav -->
+			<div class="navbar-nav">
+				<!-- <div class="navbar-item navbar-form">
+					<form action="" method="POST" name="search">
+						<div class="form-group">
+							<input type="text" class="form-control" placeholder="Enter keyword" />
+							<button type="submit" class="btn btn-search"><i class="fa fa-search"></i></button>
+						</div>
+					</form>
+				</div> -->
+				<div class="navbar-item dropdown">
+					<a href="#" data-bs-toggle="dropdown" class="navbar-link dropdown-toggle icon">
+						<i class="fa fa-bell"></i>
+						<span class="badge">{{ totalNotificaciones }}</span>
+					</a>
+					<div class="dropdown-menu media-list dropdown-menu-end">
+						<div class="dropdown-header">NOTIFICACIONES ({{ totalNotificaciones }})</div>
+						{% for noti in emisores %}
+						<div class="media d-flex align-items-center">							
+							<a href="#" onclick="abrir_modal_notificacion('/campus/notificacion/{{user.pk}}/{{noti.usuario_emisor.pk}}/','{{noti.mensaje}}' )" class="dropdown-item">
+								<!-- <img src="{{noti.usuario_emisor.profile.photo.url}}" class="media-object" alt="" /> -->
+								<div class="media-body ms-3">
+									<img src="{{noti.usuario_emisor.profile.photo.url}}" class="rounded-circle" width="40" height="35" alt="" />
+									<h6 class="media-heading">{{noti.usuario_emisor.first_name}} {{noti.usuario_emisor.last_name}}</h6>
+									<p>{{noti.mensaje}}</p>
+									<p><i class="fa fa-exclamation-circle text-danger"></i> {{noti.created_at|date:"d M Y"}}</p>
+								</div>
+							</a>
+							<div class="media-center d-flex justify-content-center">
+								<button onclick="borrar_notificacion('{{noti.pk}}')" class="btn btn-sm btn-icon btn-danger" title="Borrar Mensaje">
+									<i class="fa-solid fa-trash-can fa-fw mx-1 opacity-5"></i>
+								</button>
+							</div>
+						</div>
+						{% endfor %}
+					</div>
+				</div>				
+				
+				<div class="navbar-item navbar-user dropdown">
+					<a href="#" class="navbar-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+						<img src="{{user.profile.photo.url}}" alt="" /> 
+						<span>
+							<span class="d-none d-md-inline">Hola, {{user.username}}</span>
+							<b class="caret"></b>
+						</span>
+					</a>
+					<div class="dropdown-menu dropdown-menu-end me-1">
+						<a href="javascript:;" class="dropdown-item d-flex align-items-center">
+							Mensajes
+							<span class="badge bg-danger rounded-pill ms-auto pb-4px">{{ totalNotificaciones }}</span> 
+						</a>						
+						<div class="dropdown-divider"></div>
+						<a href="{% url 'Cerrar_Sesion' %}" class="dropdown-item">Cerrar sesión</a>
+					</div>
+				</div>
+				
+			</div>
+			<!-- END header-nav -->
+		</div>
+		<!-- END #header -->
+		
+		<!-- BEGIN #sidebar -->
+		<div id="sidebar" class="app-sidebar">
+			<!-- BEGIN scrollbar -->
+			<div class="app-sidebar-content" data-scrollbar="true" data-height="100%">
+				<!-- BEGIN menu -->
+				<div class="menu">
+					<div class="menu-profile">
+						<a href="javascript:;" class="menu-profile-link" data-toggle="app-sidebar-profile" data-target="#appSidebarProfileMenu">
+							<div class="menu-profile-cover with-shadow"></div>
+							<div class="menu-profile-image">
+								<img src="/static/campus/img/user/user-13.jpg" alt="" />
+							</div>
+							<div class="menu-profile-info">
+								<div class="d-flex align-items-center">
+									<div class="flex-grow-1">
+										<img src="{{user.profile.photo.url}}" class="rounded-circle" width="30" height="30" alt="" />        
+										{{user.first_name}} {{user.last_name}}
+									</div>
+									<div class="menu-caret ms-auto"></div>
+								</div>
+								<small></small>
+							</div>
+						</a>
+					</div>
+					<div id="appSidebarProfileMenu" class="collapse">
+						<div class="menu-item pt-5px">
+							<a href="#" onclick="abrir_modal_gestion('/campus/edit_perfil/','1' )" class="menu-link">
+								<div class="menu-icon">
+									<i class="fa-solid fa-pen-to-square"></i> 
+								</div>
+								<div class="menu-text">Editar perfil</div>
+							</a>															
+						</div>
+						<!-- <div class="menu-item">
+							<a href="javascript:;" class="menu-link">
+								<div class="menu-icon"><i class="fa fa-pencil-alt"></i></div>
+								<div class="menu-text"> Send Feedback</div>
+							</a>
+						</div>
+						<div class="menu-item pb-5px">
+							<a href="javascript:;" class="menu-link">
+								<div class="menu-icon"><i class="fa fa-question-circle"></i></div>
+								<div class="menu-text"> Helps</div>
+							</a>
+						</div> -->
+						<div class="menu-divider m-0"></div>
+					</div>
+					<div class="menu-search mb-n3 d-none">
+						<input type="text" class="form-control" placeholder="Sidebar menu filter..." data-sidebar-search="true" />
+					</div>
+					<div class="menu-header">Navegación</div>
+					<div class="menu-item has-sub">
+						<a href="javascript:;" class="menu-link">
+							<div class="menu-icon">
+								<i class="fa fa-sitemap"></i>
+							</div>
+							<div class="menu-text">Dashboard</div>
+							<div class="menu-caret"></div>
+						</a>
+						<div class="menu-submenu">
+							<div class="menu-item">
+								<a href="{% url 'Home' %}" class="menu-link"><div class="menu-text">Inicio</div></a>
+							</div>
+							<div class="menu-item">
+								<a href="{% url 'Campus' %}" class="menu-link"><div class="menu-text">Inicio Campus</div></a>
+							</div>		
+							<div class="menu-item">
+								<a href="{% url 'Bootcamp' pagina=1 %}" class="menu-link"><div class="menu-text">Bootcamps</div></a>
+							</div>					
+						</div>
+					</div>					
+					
+					<div class="menu-item">
+						<a href="{% url 'Mis_bootcamp' %}" class="menu-link">
+							<div class="menu-icon">
+								<i class="fa fa-address-card"></i> 
+							</div>
+							<div class="menu-text">Mis Bootcamps</div>
+						</a>
+					</div>
+
+					<div class="menu-item">
+						<a href="{% url 'Calendario' %}" class="menu-link">
+							<div class="menu-icon">
+								<i class="fa fa-calendar"></i> 
+							</div>
+							<div class="menu-text">Calendario</div>
+						</a>
+					</div>
+					
+					<!-- BEGIN minify-button -->
+					<div class="menu-item d-flex">
+						<a href="javascript:;" class="app-sidebar-minify-btn ms-auto" data-toggle="app-sidebar-minify"><i class="fa fa-angle-double-left"></i></a>
+					</div>
+					<!-- END minify-button -->
+				</div>
+				<!-- END menu -->
+			</div>
+			<!-- END scrollbar -->
+		</div>
+		<div class="app-sidebar-bg"></div>
+		<div class="app-sidebar-mobile-backdrop"><a href="#" data-dismiss="app-sidebar-mobile" class="stretched-link"></a></div>
+		<!-- END #sidebar -->
+		
+		<div data-id="app-extra-elm"></div>
+		
+		<!-- begin #content -->
+		{% block content %}
+
+
+		{% endblock %}	
+		<!-- END #content -->
+		
+		<!-- BEGIN theme-panel -->
+		<div class="theme-panel">
+			<a href="javascript:;" data-toggle="theme-panel-expand" class="theme-collapse-btn"><i class="fa fa-cog"></i></a>
+			<div class="theme-panel-content" data-scrollbar="true" data-height="100%">
+				<h5>App Settings</h5>
+				
+				<!-- BEGIN theme-list -->
+				<div class="theme-list">
+					<div class="theme-list-item"><a href="javascript:;" class="theme-list-link bg-red" data-theme-class="theme-red" data-toggle="theme-selector" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-container="body" data-bs-title="Red">&nbsp;</a></div>
+					<div class="theme-list-item"><a href="javascript:;" class="theme-list-link bg-pink" data-theme-class="theme-pink" data-toggle="theme-selector" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-container="body" data-bs-title="Pink">&nbsp;</a></div>
+					<div class="theme-list-item"><a href="javascript:;" class="theme-list-link bg-orange" data-theme-class="theme-orange" data-toggle="theme-selector" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-container="body" data-bs-title="Orange">&nbsp;</a></div>
+					<div class="theme-list-item"><a href="javascript:;" class="theme-list-link bg-yellow" data-theme-class="theme-yellow" data-toggle="theme-selector" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-container="body" data-bs-title="Yellow">&nbsp;</a></div>
+					<div class="theme-list-item"><a href="javascript:;" class="theme-list-link bg-lime" data-theme-class="theme-lime" data-toggle="theme-selector" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-container="body" data-bs-title="Lime">&nbsp;</a></div>
+					<div class="theme-list-item"><a href="javascript:;" class="theme-list-link bg-green" data-theme-class="theme-green" data-toggle="theme-selector" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-container="body" data-bs-title="Green">&nbsp;</a></div>
+					<div class="theme-list-item active"><a href="javascript:;" class="theme-list-link bg-teal" data-theme-class="" data-toggle="theme-selector" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-container="body" data-bs-title="Default">&nbsp;</a></div>
+					<div class="theme-list-item"><a href="javascript:;" class="theme-list-link bg-cyan" data-theme-class="theme-cyan" data-toggle="theme-selector" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-container="body" data-bs-title="Cyan">&nbsp;</a></div>
+					<div class="theme-list-item"><a href="javascript:;" class="theme-list-link bg-blue" data-theme-class="theme-blue" data-toggle="theme-selector" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-container="body" data-bs-title="Blue">&nbsp;</a></div>
+					<div class="theme-list-item"><a href="javascript:;" class="theme-list-link bg-purple" data-theme-class="theme-purple" data-toggle="theme-selector" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-container="body" data-bs-title="Purple">&nbsp;</a></div>
+					<div class="theme-list-item"><a href="javascript:;" class="theme-list-link bg-indigo" data-theme-class="theme-indigo" data-toggle="theme-selector" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-container="body" data-bs-title="Indigo">&nbsp;</a></div>
+					<div class="theme-list-item"><a href="javascript:;" class="theme-list-link bg-black" data-theme-class="theme-gray-600" data-toggle="theme-selector" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-container="body" data-bs-title="Black">&nbsp;</a></div>
+				</div>
+				<!-- END theme-list -->
+				
+				<div class="theme-panel-divider"></div>
+				
+				<div class="row mt-10px">
+					<div class="col-8 control-label text-dark fw-bold">
+						<div>Dark Mode <span class="badge bg-primary ms-1 py-2px position-relative" style="top: -1px;">NEW</span></div>
+						<div class="lh-14">
+							<small class="text-dark opacity-50">
+								Adjust the appearance to reduce glare and give your eyes a break.
+							</small>
+						</div>
+					</div>
+					<div class="col-4 d-flex">
+						<div class="form-check form-switch ms-auto mb-0">
+							<input type="checkbox" class="form-check-input" name="app-theme-dark-mode" id="appThemeDarkMode" value="1" />
+							<label class="form-check-label" for="appThemeDarkMode">&nbsp;</label>
+						</div>
+					</div>
+				</div>
+				
+				<div class="theme-panel-divider"></div>
+				
+				<!-- BEGIN theme-switch -->
+				<div class="row mt-10px align-items-center">
+					<div class="col-8 control-label text-dark fw-bold">Header Fixed</div>
+					<div class="col-4 d-flex">
+						<div class="form-check form-switch ms-auto mb-0">
+							<input type="checkbox" class="form-check-input" name="app-header-fixed" id="appHeaderFixed" value="1" checked />
+							<label class="form-check-label" for="appHeaderFixed">&nbsp;</label>
+						</div>
+					</div>
+				</div>
+				<div class="row mt-10px align-items-center">
+					<div class="col-8 control-label text-dark fw-bold">Header Inverse</div>
+					<div class="col-4 d-flex">
+						<div class="form-check form-switch ms-auto mb-0">
+							<input type="checkbox" class="form-check-input" name="app-header-inverse" id="appHeaderInverse" value="1" />
+							<label class="form-check-label" for="appHeaderInverse">&nbsp;</label>
+						</div>
+					</div>
+				</div>
+				<div class="row mt-10px align-items-center">
+					<div class="col-8 control-label text-dark fw-bold">Sidebar Fixed</div>
+					<div class="col-4 d-flex">
+						<div class="form-check form-switch ms-auto mb-0">
+							<input type="checkbox" class="form-check-input" name="app-sidebar-fixed" id="appSidebarFixed" value="1" checked />
+							<label class="form-check-label" for="appSidebarFixed">&nbsp;</label>
+						</div>
+					</div>
+				</div>
+				<div class="row mt-10px align-items-center">
+					<div class="col-8 control-label text-dark fw-bold">Sidebar Grid</div>
+					<div class="col-4 d-flex">
+						<div class="form-check form-switch ms-auto mb-0">
+							<input type="checkbox" class="form-check-input" name="app-sidebar-grid" id="appSidebarGrid" value="1" />
+							<label class="form-check-label" for="appSidebarGrid">&nbsp;</label>
+						</div>
+					</div>
+				</div>
+				<div class="row mt-10px align-items-center">
+					<div class="col-md-8 control-label text-dark fw-bold">Gradient Enabled</div>
+					<div class="col-md-4 d-flex">
+						<div class="form-check form-switch ms-auto mb-0">
+							<input type="checkbox" class="form-check-input" name="app-gradient-enabled" id="appGradientEnabled" value="1" />
+							<label class="form-check-label" for="appGradientEnabled">&nbsp;</label>
+						</div>
+					</div>
+				</div>
+				<!-- END theme-switch -->
+				
+				
+				<a href="https://seantheme.com/color-admin/documentation/" class="btn btn-dark d-block w-100 rounded-pill mb-10px" target="_blank"><b>Documentation</b></a>
+				<a href="javascript:;" class="btn btn-default d-block w-100 rounded-pill" data-toggle="reset-local-storage"><b>Reset Local Storage</b></a>
+			</div>
+		</div>
+		<!-- END theme-panel -->
+		
+		<!-- BEGIN scroll-top-btn -->
+		<a href="javascript:;" class="btn btn-icon btn-circle btn-success btn-scroll-to-top" data-toggle="scroll-to-top"><i class="fa fa-angle-up"></i></a>
+		<!-- END scroll-top-btn -->
+	</div>
+	<!-- END #app -->
+	<!--IniciaModal-->
+    <div class="modal fade" id="modalGestion" role="dialog" >        
+    </div>
+    <!--EndModal-->
+	
+	<!-- ================== BEGIN core-js ================== -->
+	<script src="{% static 'js/vendor.min.js' %}"></script>
+	<script src="{% static 'js/app.min.js' %}"></script>
+	<script>
+		App.settings({
+			ajaxMode: true,
+			ajaxDefaultUrl: '',
+			ajaxType: 'GET',
+			ajaxDataType: 'html'
+		});
+	</script>		
+	<!-- ================== END core-js ================== -->
+
+	<!-- ================== BEGIN page-js ================== -->
+	<script src="{% static 'plugins/isotope-layout/dist/isotope.pkgd.min.js' %}"></script>
+	<script src="{% static 'plugins/lightbox2/dist/js/lightbox.min.js' %}"></script>
+	<script src="{% static 'js/demo/gallery.demo.js' %}"></script>
+	<!-- ================== END page-js ================== -->
+	<!-- Libreria SweetAlert2 Alertas  -->
+	<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="/static/home/js/blog/Sweetalert.js"></script>
+
+
+	<!-- ================== BEGIN core-js ================== -->
+	<!-- <script src="../assets/js/vendor.min.js"></script> -->
+	<script src="{% static '/js/app.min.js' %}"></script>
+	<!-- ================== END core-js ================== -->
+	
+	<!-- ================== BEGIN page-js ================== -->
+	<script src="{% static 'plugins/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+	<script src="{% static 'plugins/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+	<script src="{% static 'plugins/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+	<script src="{% static 'plugins/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+	<script src="{% static 'plugins/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js' %}"></script>
+	<script src="{% static 'plugins/datatables.net-fixedheader-bs5/js/fixedHeader.bootstrap5.min.js' %}"></script>
+	<script src="{% static 'js/demo/table-manage-fixed-header.demo.js' %}"></script>
+	<script src="{% static 'plugins/@highlightjs/cdn-assets/highlight.min.js' %}"></script>
+	<script src="{% static 'js/demo/render.highlight.js' %}"></script>
+	<script src="{% static 'js/base_campus.js' %}"></script>
+
+
+	<link href="{% static 'plugins/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" />
+	<link href="{% static 'plugins/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" />
+	<link href="{% static 'plugins/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" />
+	<script src="{% static 'plugins/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+	<script src="{% static 'plugins/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+	<script src="{% static 'plugins/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+	<script src="{% static 'plugins/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+	<script src="{% static 'plugins/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+	<script src="{% static 'plugins/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js' %}"></script>
+	<script src="{% static 'plugins/datatables.net-buttons/js/buttons.colVis.min.js' %}"></script>
+	<script src="{% static 'plugins/datatables.net-buttons/js/buttons.flash.min.js' %}"></script>
+	<script src="{% static 'plugins/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+	<script src="{% static 'plugins/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+	<script src="{% static 'plugins/pdfmake/build/pdfmake.min.js' %}"></script>
+	<script src="{% static 'plugins/pdfmake/build/vfs_fonts.js' %}"></script>
+	<script src="{% static 'plugins/jszip/dist/jszip.min.js' %}"></script>
+
+
+	<script src="{% static 'js/contenido.js' %}"></script>
+	<script src="{% static 'plugins/bootstrap-datepicker/dist/js/bootstrap-datepicker.js' %}"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.18/r-2.2.2/datatables.min.js"></script>
+
+
+
+	<!-- ================== END page-js ================== -->
+
+{% if messages %}
+{% for m in messages %}
+	{% if m.tags == "success" %}
+		<script>				
+			Swal.fire({
+				"title": "Felicitaciones",
+				"text": "{{m}}",
+				"icon":"success",
+				confirmButtonColor: '#2d353c',
+			})				
+		</script>
+	{% else %}
+	<script>				
+		Swal.fire({
+			"title": "Estimado Usuario",
+			"text": "{{m}}",
+			"icon":"error",
+			confirmButtonColor: '#2d353c',
+		})				
+	</script>
+
+	{% endif %}
+{% endfor %}
+
+{% endif %}
+
+{% block extrajs %}
+
+{% endblock extrajs %}
+</body>
+</html>

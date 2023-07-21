@@ -1,0 +1,133 @@
+{% extends "campus/base_campus.html" %}
+{% block title %}Mis Bootcamps{% endblock title %}
+{%load static %}
+{% block extra_css %}
+<link href="{% static 'plugins/spectrum-colorpicker2/dist/spectrum.min.css' %}" rel="stylesheet" />
+
+{% endblock extra_css%}
+
+{% block content %}	
+		<!-- BEGIN #content -->
+		<div id="content" class="app-content">
+			<!-- BEGIN breadcrumb -->
+			<ol class="breadcrumb float-xl-end">
+				<li class="breadcrumb-item"><a href="{% url 'Campus' %}">Inicio Campus</a></li>
+				<li class="breadcrumb-item"><a href="{% url 'Calendario' %}">Calendario</a></li>
+			</ol>
+			<!-- END breadcrumb -->
+			<!-- BEGIN page-header -->
+			<h1 class="page-header">Calendario</h1>
+			<!-- END page-header -->
+			<hr />
+			<!-- BEGIN row -->
+			<div class="row">
+				<!-- BEGIN event-list -->
+				<div class="d-none d-lg-block" style="width: 215px">
+					<div id="external-events" class="fc-event-list">
+						<h5 class="mb-3">Mis Eventos</h5>
+						<div class="lead mb-20px">                                    
+							<button onclick="abrir_modal_gestion('/campus/add_evento/')" class="btn btn-dark">
+								<i class="far fa-square-plus fa-fw mx-1 opacity-5"></i> Nuevo Evento
+							</button>                                                                                                       
+						</div>						
+						{% for evento in eventosBd %}
+						<div class="fc-event" onclick="abrir_modal_gestion('/campus/edit_evento/{{evento.pk}}/')">							
+							<div class="fc-event-text">
+								{{evento.titulo}}								
+							</div>
+							<div class="fc-event-icon"><i class="fas fa-circle" style='color:{{evento.color_evento}};'></i></div>
+						</div>
+						<!-- <div class="fc-event" data-color="#348fe2">
+							<div class="fc-event-text">IOS App Development</div>
+							<div class="fc-event-icon"><i class="fas fa-circle fa-fw fs-9px text-blue"></i></div>
+						</div>-->
+						
+						<hr class="bg-grey-lighter my-3" />
+						
+						{% endfor %}
+					</div>
+				</div>
+				<!-- END event-list -->
+				<div class="col-lg">
+					<!-- BEGIN calendar -->
+					<div id="calendar">
+						
+					</div>
+					<!-- END calendar -->
+				</div>
+			</div>
+			<!-- END row -->
+		</div>
+		<!-- END #content -->	
+
+		<!--IniciaModal-->
+		<div class="modal fade" id="modalGestion" role="dialog" >        
+		</div>
+		<!--EndModal-->
+		
+{% endblock %}
+
+
+{% block extrajs %}
+<!--Inicio Script Calendario-->
+<script src="{% static 'plugins/spectrum-colorpicker2/dist/spectrum.min.js' %}"></script>
+ <!--Color formulario input eventos-->
+
+    
+
+<script type="importmap">
+{
+	"imports": {
+	"@fullcalendar/core": "https://cdn.skypack.dev/@fullcalendar/core@6.1.5",
+	"@fullcalendar/daygrid": "https://cdn.skypack.dev/@fullcalendar/daygrid@6.1.5",
+	"lodash@3/": "https://unpkg.com/lodash-es@3.10.1/",
+	"lodash@4/": "https://unpkg.com/lodash-es@4.17.21/"
+	}
+}
+</script>
+
+<script type='module'>
+	import { Calendar } from '@fullcalendar/core'
+    import dayGridPlugin from '@fullcalendar/daygrid'
+
+	document.addEventListener('DOMContentLoaded', function() {
+	  const calendarEl = document.getElementById('calendar')
+	  const calendar = new Calendar(calendarEl, {
+		plugins: [dayGridPlugin],
+		initialView: 'dayGridMonth',
+		headerToolbar: {
+			left: 'prev next today',
+			center: 'title',			
+
+		},
+		locale: 'es',
+		events: [
+			{% for evento in eventosBd %}
+				{
+					title: '{{evento.titulo}}',
+					start : '{{evento.fecha_inicio | date:"Y-m-d"}}',
+					end : '{{evento.fecha_fin | date:"Y-m-d"}}',
+					color: '{{evento.color_evento}}'
+				},
+			{% endfor %}
+		]
+	  })
+	  calendar.render();
+	})
+</script>
+<!--Fin Script Calendario-->
+
+
+<!--modalGestion-->
+<script type="text/javascript">
+	var $ = jQuery.noConflict();    
+	function abrir_modal_gestion(url){
+		$("#modalGestion").load(url, function(){ 
+			$(this).modal('show');
+		});
+	}
+</script>
+<!--Fin modalGestion-->
+{% endblock extrajs %}
+
+

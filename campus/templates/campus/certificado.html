@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Certificado</title>
+    <!-- <link href="{% static 'css/estilos.css' %}" rel="stylesheet" />     -->
+
+    
+    <style>
+        body {
+            background-image: url('/static/img/certificado/fondo_certificado.png'); 
+            background-repeat: no-repeat; 
+            background-size: cover;
+            background-position: center;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .box {
+            width: 600px;
+            height: 500px;
+            padding-top: 1px;
+        }
+        .text-danger {
+        color: #dc3545!important;
+        }
+
+        .text-center {
+        text-align: center!important;
+        }
+
+        @media print {
+            body {
+                transform: rotate(90deg);
+                transform-origin: left top;
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+                page-break-after: always;
+            }
+
+            @page {
+                size: landscape;
+            }
+
+            #imprimir-button {
+                display: none;
+            }
+        }
+        .btn-imprimir {
+            background-color: #007bff;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>    
+    
+    <div class="container">
+        <div class="box">
+            <h1 class="text-center">
+                Bootcamp
+                <p>
+                {{curso}}
+                </p>
+            </h1>
+            <p></p>
+            <p></p>
+            <h1 class="text-danger text-center">
+                CERTIFICADO DE FINALIZACIÓN
+            </h1>
+            <br>
+            <p class="text-center lead">
+                Otorgado a:
+            </p>
+            <h2 class="text-center">
+                {{usuario_id.first_name}} {{usuario_id.last_name}}                
+            </h2>
+            <br>
+            <p class="text-center lead">
+                Por su participación y haber cumplido con los objetivos dados en el programa
+            </p>
+            <p class="text-center lead">
+                de formación intensiva.
+            </p>
+            <br>
+            <p class="text-center lead">
+                Aprobado el {{fecha_actual}}
+            </p> 
+
+            <div class="col-lg-8 text-center">
+                    <p><u><h3>{{curso.autor.first_name}} {{curso.autor.last_name}}</h3></u></p>   
+                    <p class="text-center lead">
+                        <h3>Empresa</h3>
+                    </p>                 
+            </div>                    
+
+        </div>
+    </div>
+
+     <!-- Agrega el botón de impresión -->
+     <div class="text-center mt-4">
+        <button id="imprimir-button" class="btn btn-imprimir" onclick="imprimirPDF()">Imprimir PDF</button>
+    </div>  
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.0/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js"></script>
+    <script>
+        function imprimirPDF() {
+            // Oculta el botón de impresión antes de imprimir
+            document.getElementById("imprimir-button").style.display = "none";
+
+            // Captura el contenido y el fondo en una sola imagen utilizando html2canvas
+            html2canvas(document.body, { scale: 2 }).then(function(canvas) {
+                // Crea un objeto jsPDF
+                var pdf = new jsPDF('landscape');
+
+                // Obtiene la imagen en formato base64 del canvas capturado
+                var imgData = canvas.toDataURL('image/jpeg', 1.0);
+
+                // Agrega la imagen al PDF con la opción de escala
+                pdf.addImage(imgData, 'JPEG', 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight(), null, 'FAST');
+
+                // Guarda el PDF
+                pdf.save('Certificado_Bootcamp.pdf');
+            });
+        }
+    </script>
+    
+</body>
+</html>

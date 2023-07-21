@@ -1,0 +1,221 @@
+{%extends "home/base.html" %}
+{% block title %} Lista de Bootcamps {% endblock title %}
+{%load static %}
+
+{% block content %}    
+    <!-- begin #content -->
+<div id="content" class="content">
+	<!-- begin container -->
+	<div class="container">
+		<!-- begin row -->
+		<div class="row row-space-30">
+			<!-- begin col-9 -->
+			<div class="col-lg-9">				
+				<!-- begin post-list -->
+				<div class="post-list post-grid post-grid-2">
+					{% for cursos in cursos %}
+					<div class="post-li">
+						<!-- begin post-content -->
+						<div class="post-content">
+							<!-- begin post-image -->
+							<div class="post-image">
+								<a href="{{cursos.imagen.url}}">
+									<div class="post-image-cover" style="background-image: url({{cursos.imagen.url}})"></div>
+								</a>
+							</div>
+							<!-- end post-image -->
+							<!-- begin post-info -->
+							<div class="post-info">
+								<h4 class="post-title">
+									<a href="#">{{cursos.titulo}}</a>
+								</h4>								
+								<div class="post-desc">
+									{{cursos.contenido}}
+								</div>
+								<h6 class="info">
+									Requisitos:
+								</h6>					
+
+								<div class="post-desc">
+									<ul class="sidebar-list">
+										<h6>											
+											<li>{{ cursos.requisito1 }}</li>
+											<li>{{ cursos.requisito2 }}</li>
+											<li>{{ cursos.requisito3 }}</li>
+											<li>{{ cursos.requisito4 }}</li>
+											<li>{{ cursos.requisito5 }}</li>											
+										</h6>
+									</ul>
+								</div>
+								<div class="post-by">
+									{% if cursos.fecha_inicio|date:"Y m d" >= fecha_actual|date:"Y m d" %}
+										Publicado por <a href="#">{{cursos.autor}}</a> <span class="divider">|</span> Inicia el {{cursos.fecha_inicio|date:"d M Y"}}
+									{% else %}
+										Publicado por <a href="#">{{cursos.autor}}</a> <span class="divider">|</span> Inició el {{cursos.fecha_inicio|date:"d M Y"}}
+									{% endif %}
+								</div>
+								<!-- begin read-btn-container -->							
+								{% if user.is_authenticated %}	
+								<div class="section-container text-center">
+									{% if cursos.fecha_inicio|date:"Y m d" >= fecha_actual|date:"Y m d" %}									
+									<a href="#" onclick="inscripcion_alert('{{cursos.id}}','{{user.pk}}','{{cursos.titulo}}')" class="btn btn-dark"> APLICA AHORA  <i class="fa fa-id-card"></i></a>
+									{% endif %}
+									{% if cursos.autor == user and user.groups.all.0.name == 'permisos_empresa' %}
+									<div>
+										<p></p>
+										<a href="#" onclick="abrir_modal_gestion_bootcamp('/bootcamps/edit_bootcamp/{{cursos.pk}}/','{{cursos.pk}}')" class="btn btn-success" title="Editar Bootcamp">
+											<i class="fa fa-pen-to-square "></i> 
+										</a>
+										<a href="#" onclick="borrar_bootcamp_alert('{{cursos.pk}}','{{cursos.titulo}}')"  class="btn btn-danger" data-bs-toggle="offcanvas" title="Borrar Bootcamp">
+											<i class="fa-solid fa-trash-can "></i> 
+										</a> 
+									</div>
+									{% endif %}									
+								</div>							
+								{% else %}
+								<div class="post-by">								
+									<a href="{% url 'Iniciar_Sesion' %}">Debes iniciar sesión para aplicar al Bootcamp</a>
+								</div>
+								{% endif %}								
+								<!-- end read-btn-container -->
+							</div>
+							<!-- end post-info -->							
+						</div>
+						<!-- end post-content -->
+					</div>
+					{% endfor %}						
+				</div>
+				<!-- end post-list -->
+
+				<div class="section-container">
+					<!-- begin pagination -->
+					<div class="pagination-container">
+						<ul class="pagination justify-content-center">
+							{% if cursos.has_previous %}
+							<li class="page-item enable"><a class="page-link" href="/bootcamps/page/{{cursos.previous_page_number}}">Prev</a></li>
+							{% else %}
+							<li class="page-item disabled"><a class="page-link" href="">Prev</a></li>							
+							{% endif %}
+							{% for i in page_range %}
+								{% if cursos.number == i %}	
+									<li class="page-item active"><a class="page-link" href="#">{{i}}</a></li>
+								{% else %}
+									<li class="page-item "><a class="page-link" href="/bootcamps/page/{{i}}/">{{i}}</a></li>
+								{% endif %}													
+							{% endfor %}
+
+							{% if cursos.has_next %}
+							<li class="page-item"><a class="page-link" href="/bootcamps/page/{{cursos.next_page_number}}">Next</a></li>
+							{% else %}
+							<li class="page-item disabled"><a class="page-link" href="">Next</a></li>
+							{% endif %}
+							<li class="page-item"><a class="page-link" href="/bootcamps/page/{{cursos.paginator.num_pages}}">Final</a></li>
+							
+						</ul>
+					</div>
+					<!-- end pagination -->
+				</div>
+			</div>
+			<!-- end col-9 -->
+			<!-- begin col-3 -->
+			<div class="col-lg-3">
+				<!-- begin section-container -->
+				<div class="section-container">					
+					<form action="{% url 'Buscar_bootcamp' %}" method="GET">
+						<div class="input-group sidebar-search">
+							<input type="text" name="boot" class="form-control" placeholder="Buscar Bootcamp..." />
+							<button class="btn btn-dark" type="submit"><i class="fa fa-search"></i></button>							
+						</div>						
+					</form>
+					{% if mensaje_error %}                                              
+						<div class="alert alert-danger d-flex align-items-center" role="alert">
+							<svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+							<strong>{{mensaje_error}}</strong>
+							<button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+						</div>                                                                          
+					{% endif %}     
+				</div>
+				<!-- end section-container --> 
+				{% if user.is_superuser or user.groups.all.0.name == 'permisos_empresa' %}							
+					<div class="section-container text-center">
+						<!-- <a href="{% url 'Add_bootcamp' user.id %}" class="btn btn-dark"> <span>AÑADIR BOOTCAMP  </span><i class="fa fa-plus-square"></i></a> -->
+						<a href="#" onclick="abrir_modal_gestion_bootcamp('/bootcamps/add_bootcamp/{{user.pk}}/' )"  class="btn btn-dark" >
+							<span>AÑADIR BOOTCAMP  </span><i class="fa fa-plus-square"></i></a>  
+					</div>							
+				{% endif %}
+				
+				<!-- begin section-container -->
+				<div class="section-container">
+					<h4 class="section-title"><span>Categorías Bootcamp</span></h4>
+					<ul class="sidebar-list">
+					{% for categ in tipo_categBd %}
+						<li><a href="{% url 'Bootcamp' pagina=1 %}">{{categ.nombre}}</a></li>
+					{% endfor %}						
+					</ul>
+				</div>
+				<!-- end section-container -->
+				<!-- begin section-container -->
+				<div class="section-container">
+					<h4 class="section-title"><span>Blogs Recientes</span></h4>
+					<ul class="sidebar-recent-post">
+						{%for blog in blogs %}
+						<li>
+							<div class="info">
+								<h4 class="title"><a href="{% url 'Blog' pagina=1 %}">{{blog.titulo}}</a></h4>
+								<div class="date">{{blog.created|date:'d N Y'}}</div>
+							</div>
+						</li>	
+						{% endfor %}					
+					</ul>
+				</div>
+				<!-- end section-container -->
+				<!-- begin section-container -->
+				<div class="section-container">
+					<h4 class="section-title"><span>Categorías Blogs</span></h4>
+						<ul class="sidebar-list">
+							{% for categoria in categBd %}
+								<li><a href="{% url 'categoria' categoria.id %}">{{categoria.nombre}}</a></li>
+							{% endfor %}
+						</ul>
+				</div>
+				<!-- end section-container -->
+				<!-- begin section-container -->
+				<div class="section-container">
+					<h4 class="section-title"><span>Síganos</span></h4>
+					<ul class="sidebar-social-list">
+						<li><a href="https://www.facebook.com/universidaddelvalle/"><i class="fab fa-facebook"></i></a></li>
+						<li><a href="https://www.youtube.com/user/universidaddelvalle1"><i class="fab fa-youtube"></i></a></li>
+						<li><a href="https://www.instagram.com/univallecol/?hl=es"><i class="fab fa-instagram"></i></a></li>
+						<li><a href="https://twitter.com/UnivalleCol?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor"><i class="fab fa-twitter"></i></a></li>
+						<li><a href="https://www.linkedin.com/school/universidad-del-valle/?viewAsMember=true"><i class="fab fa-linkedin"></i></a></li>
+					</ul>
+				</div>
+				<!-- end section-container -->
+			</div>
+			<!-- end col-3 -->
+		</div>
+		<!-- end row -->
+	</div>
+	<!-- end container -->
+</div>
+<!-- end #content -->
+
+<!--IniciaModal-->
+<div class="modal fade" id="modalGestionBootcamp" role="dialog" >        
+</div>
+<!--EndModal-->
+
+{% endblock %}
+{% block extrajs %}
+<!--modalGestion-->
+<script type="text/javascript">
+	var $ = jQuery.noConflict();    
+	function abrir_modal_gestion_bootcamp(url,id_bootcamp){
+		$("#modalGestionBootcamp").load(url, function(){ 
+			document.getElementById('id_bootcamp').value=id_bootcamp;
+			$(this).modal('show');
+		});
+	}
+</script>
+
+{% endblock extrajs %}

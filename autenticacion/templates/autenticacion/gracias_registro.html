@@ -1,0 +1,46 @@
+{% extends "autenticacion/base_autenticacion.html" %}
+{%load static %}
+{% block content %}
+			
+<!-- BEGIN login-container -->
+<div class="login-container">
+	<!-- BEGIN login-header -->
+	<div class="login-header mb-30px">
+		<div class="brand">
+			<div class="d-flex align-items-center">										
+				<a href="{% url 'Home' %}" class="navbar-brand">
+					<span class="logo"></span>
+						<b>Gracias por Registrarte</b>
+					</span>
+				</a>							
+			</div>
+			<small></small>
+		</div>
+		<div class="icon">
+			<i class="fa fa-sign-in-alt"></i>
+		</div>
+	</div>
+	<!-- END login-header -->
+	
+	<!-- BEGIN login-content -->
+	<div class="login-content">
+		<form method="post" action="" class="fs-13px">
+			<div class="mb-3">
+				<div class="row gx-3">
+					{% csrf_token %}														
+					<div class="mb-40px pb-40px text-white">
+						<a href="{% url 'Iniciar_Sesion' %}" class="btn btn-primary d-block h-45px w-100 btn-lg fs-14px">Iniciar Sesión</a></br>
+					</div>								
+					<hr class="bg-gray-600 opacity-2" />
+					<div class="text-gray-300 text-center text-white bg-opacity-50 mb-0">
+						&copy; Finishing School todos los derechos reservados 2022
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>								
+	<!-- END login-content -->
+</div>
+<!-- END login-container -->
+		
+{% endblock %}

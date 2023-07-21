@@ -1,0 +1,254 @@
+{% extends "campus/base_campus.html" %}
+{% block title %}Bootcamp: {{curso}}{% endblock title %}
+{% load static %}
+{% block extra_css %}
+<style>
+    .chart-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+{% if user.is_superuser or user.groups.all.0.name == 'permisos_empresa' %}
+<!-- BEGIN #content -->
+<div id="content" class="app-content">
+    <!-- BEGIN breadcrumb -->
+    <ol class="breadcrumb float-xl-end">
+        <li class="breadcrumb-item"><a href="{% url 'Campus' %}">Inicio Campus</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'Mis_bootcamp' %}">Mis Bootcamps</a></li>
+        <li class="breadcrumb-item active"><a href="{% url 'Contenido_bootcamp' curso.id %}">{{curso}}</a></li>
+        {% if user.is_superuser or user.groups.all.0.name == 'permisos_empresa' %}
+        <li class="breadcrumb-item"><a>Gestión Curso</a></li>
+        {% endif %}
+    </ol>
+    <!-- END breadcrumb -->
+    <!-- BEGIN page-header -->
+    <h1 class="page-header">{{curso}}</h1>
+    <!-- END page-header -->
+
+    <!-- BEGIN panel-body -->
+    <div class="panel-body">
+        <!-- BEGIN nav-tabs -->
+        <ul id="ioniconsTab" class="nav nav-pills mb-3">
+            <li class="nav-item ms-2"><a href="{% url 'Asistencia_bootcamp' curso.id %}" class="nav-link d-flex align-items-center"><ion-icon name="aperture-sharp" class="fs-18px"></ion-icon><span class="ms-2">Asistencia de Estudiantes</span>&nbsp;</a></li>
+            <li class="nav-item ms-2"><a href="{% url 'Notas_bootcamp' curso.id %}" class="nav-link d-flex align-items-center"><ion-icon name="aperture-sharp" class="fs-18px"></ion-icon><span class="ms-2">Notas de Estudiantes</span>&nbsp;</a></li>
+            <li class="nav-item ms-2"><a href="{% url 'Seleccion_estudiante' curso.id %}" class="nav-link d-flex align-items-center"><ion-icon name="aperture-sharp" class="fs-18px"></ion-icon><span class="ms-2">Selección de Estudiantes</span>&nbsp;</a></li>
+            <li class="nav-item ms-2"><a href="#bootcamp_report" data-bs-toggle="tab" class="nav-link active d-flex align-items-center"><ion-icon name="aperture-sharp" class="fs-18px"></ion-icon><span class="ms-2">Generar Reporte</span>&nbsp;</a></li>
+        </ul>
+        <!-- END nav-tabs -->
+
+        <!-- --------------------Tabla Seleccion_estudiantes-------------------------------------------------------- -->
+
+        {% if user.is_superuser or curso.autor.pk == user.pk and user.groups.all.0.name == 'permisos_empresa' %}
+        <hr class="bg-gray-500" />
+        <!-- BEGIN tab-content -->
+        <div id="ioniconsTabContent" class="tab-content rounded-bottom fs-13px">
+            <div class="tab-pane fade show active" id="bootcamp_report">
+                <!-- BEGIN row -->
+                <div class="row">
+                    <!-- BEGIN panel -->
+                    <div class="panel panel-inverse">
+                        <!-- BEGIN panel-heading -->
+                        <div class="panel-heading">
+                            <h4 class="panel-title">Reporte Bootcamp </h4>
+                            <div class="panel-heading-btn">
+                                <a href="javascript:;" class="btn btn-xs btn-icon btn-default" data-toggle="panel-expand"><i class="fa fa-expand"></i></a>
+                                <a href="javascript:;" class="btn btn-xs btn-icon btn-success" data-toggle="panel-reload"><i class="fa fa-redo"></i></a>
+                                <!-- <a href="javascript:;" class="btn btn-xs btn-icon btn-warning" data-toggle="panel-collapse"><i class="fa fa-minus"></i></a> -->
+                                <!-- <a href="javascript:;" class="btn btn-xs btn-icon btn-danger" data-toggle="panel-remove"><i class="fa fa-times"></i></a> -->
+                            </div>
+                        </div>
+                        <!-- END panel-heading -->
+                        <!-- BEGIN table-responsive -->
+                        <div class="panel-body table-responsive">
+                            <table id="tabla-reporte" class=" table table-striped table-bordered text-nowrap align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Estudiante</th>
+                                        <th>Promedio</th>
+                                        <th>Resultado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for estudiante in reporte %}
+                                    <tr>
+                                        <td>{{ estudiante.estudiante.nombre }} {{ estudiante.estudiante.apellido }}</td>
+                                        <td>{{ estudiante.promedio }}</td>
+                                        <td>{{ estudiante.resultado }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <div class="chart-container text-center">
+                                <canvas id="chart" width="400" height="300"></canvas>
+                            </div>
+                        </div>
+                        <!-- END table-responsive -->
+                    </div>
+                    <!-- END panel -->
+                </div>
+                <!-- END row -->
+            </div>
+            <!-- END tab-pane Seleccion Estudiantes-->
+            <!-- Botón "Imprimir" -->
+            
+            <div class="text-center mt-4">
+                <button id="imprimir-button" class="btn btn-primary" onclick="downloadPDFWithPDFMake()">Imprimir PDF</button>
+            </div> 
+
+            {% endif %}
+        </div>
+        <!-- END tab-content -->
+    </div>
+    <!-- END panel-body -->
+</div>
+<!-- END #content -->
+{% endif %}
+
+<!--IniciaModal-->
+<div class="modal fade" id="modalGestion" role="dialog"></div>
+<!--EndModal-->
+{% endblock %}
+
+{% block extrajs %}
+<!-- Script para generar el PDF al hacer clic en el botón "Imprimir" -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.0/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js"></script>
+
+<script>
+    function downloadPDFWithPDFMake() {
+
+        var canvas = document.getElementById("chart");
+        var chartDataURL = canvas.toDataURL(); // Obtiene los datos de la imagen en formato base64
+        
+        var tableHeaderText = [...document.querySelectorAll('#tabla-reporte  thead tr th')].map(thElement => ({ text: thElement.textContent, style: 'tableHeader' }));
+        var tableRowCells = [...document.querySelectorAll('#tabla-reporte  tbody tr td')].map(tdElement => ({ text: tdElement.textContent, style: 'tableData' }));
+        var tableDataAsRows = tableRowCells.reduce((rows, cellData, index) => {
+            if (index % 3 === 0) {
+            rows.push([]);
+            }
+
+        rows[rows.length - 1].push(cellData);
+        return rows;
+        }, []);
+
+        var docDefinition = {
+            header: { text: 'Reporte Bootcamp de Aprobados', alignment: 'center' },
+            footer: function(currentPage, pageCount) { return ({ text: `Page ${currentPage} of ${pageCount}`, alignment: 'center' }); },
+            content: [
+            {
+                style: 'centeredTable', // Nueva clase CSS para centrar la tabla
+                table: {
+                    headerRows: 1,
+                    body: [
+                        tableHeaderText,
+                        ...tableDataAsRows,
+                    ]
+                },
+                layout: {
+                fillColor: function(rowIndex) {
+                    if (rowIndex === 0) {
+                    return '#0f4871';
+                    }
+                    return (rowIndex % 2 === 0) ? '#f2f2f2' : null;
+                }
+                },
+            },
+            {
+                image: chartDataURL,
+                width: 400,
+                height: 300,
+                alignment: 'center'
+                }
+            ],
+
+            styles: {
+                centeredTable: { // Nueva clase CSS para centrar la tabla
+                    margin: [0, 20, 0, 80],
+                    alignment: 'center'
+                },
+                tableHeader: {
+                    margin: 12,
+                    color: 'white',
+                },
+                tableData: {
+                    margin: 12,
+                },
+            },
+        };
+        
+        pdfMake.createPdf(docDefinition).download('Reporte_bootcamp');
+    }
+    document.querySelector('#pdfmake').addEventListener('click', downloadPDFWithPDFMake);
+
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
+<script>
+    // Obtener los datos del gráfico desde el backend
+    const chartData = JSON.parse('{{ data|escapejs }}');   
+    const porcentaje_apro = '{{porcentaje_apro}}'
+    const porcentaje_repro = '{{porcentaje_repro}}'
+    // Generar el gráfico utilizando los datos del backend
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById("chart").getContext("2d");
+        const chartWidth = 400;
+        const chartHeight = 300;
+
+        new Chart(ctx, {
+            type: "pie",
+            data: {
+                labels: ["Aprobados= "+ porcentaje_apro + '%', "Reprobados= "+porcentaje_repro + '%'],
+                datasets: [{
+                    data: chartData,
+                    backgroundColor: ["green", "red"]
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                width: chartWidth,
+                height: chartHeight,
+                tooltips: {
+                    callbacks: {
+                        label: function(tooltipItem, data) {
+                            var dataset = data.datasets[tooltipItem.datasetIndex];
+                            var total = dataset.data.reduce(function(previousValue, currentValue, currentIndex, array) {
+                                return previousValue + currentValue;
+                            });
+                            var currentValue = dataset.data[tooltipItem.index];
+                            var percentage = Math.round((currentValue / total) * 100);
+                            return percentage + "%";
+                        }
+                    }
+                },
+                plugins: {
+                    datalabels: {
+                        formatter: (value, ctx) => {
+                            let sum = 0;
+                            let dataArr = ctx.chart.data.datasets[0].data;
+                            dataArr.map(data => {
+                                sum += data;
+                            });
+                            let percentage = (value * 100 / sum).toFixed(1) + "%";
+                            return percentage;
+                        },
+                        color: '#fff',
+                        anchor: 'end',
+                        align: 'start',
+                        offset: 10,
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock extrajs %}

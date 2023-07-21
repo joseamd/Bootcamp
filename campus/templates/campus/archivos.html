@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+    {%load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form action="" method="POST" class="form-control" enctype="multipart/form-data">
+        <div> 
+            {% csrf_token %}
+            <p></p> 
+            <input type="file" name="miArchivo" >               
+        </div>
+            <div class="section-container text-center">  
+                <button type="button" class="btn btn-secondary btn-lg btn-block" data-bs-toggle="modal" aria-label="close">Cancelar</button>
+                <button type="submit" class="btn btn-primary btn-lg btn-block" >Subir Archivo</button>
+            </div>
+            {% if carga_archivo_url %}    
+            <p>Archivo subido en: <a href="{{carga_archivo_url}}">{{carga_archivo_url}}</a> </p>
+            {% endif %}
+    </form>
+</body>
+</html>

@@ -1,0 +1,227 @@
+{% extends "campus/base_campus.html" %}
+{% block title %}Bootcamp: {{curso}} {% endblock title %}
+{%load static %}
+{% block extra_css %}
+
+{% endblock extra_css %}
+
+{% block content %}
+
+{% if user.is_superuser or user.groups.all.0.name == 'permisos_empresa' %}
+
+    <!-- BEGIN #content -->
+    <div id="content" class="app-content">
+        <!-- BEGIN breadcrumb -->
+        <ol class="breadcrumb float-xl-end">
+            <li class="breadcrumb-item"><a href="{% url 'Campus' %}">Inicio Campus</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'Mis_bootcamp' %}">Mis Bootcamps</a></li>
+            <li class="breadcrumb-item active"><a href="{% url 'Contenido_bootcamp' curso.id %}">{{curso}}</a></li>
+            {% if user.is_superuser or user.groups.all.0.name == 'permisos_empresa' %}
+            <li class="breadcrumb-item"><a>Gestión Curso</a></li>
+            {% endif %}
+        </ol>
+        <!-- END breadcrumb -->
+        <!-- BEGIN page-header -->
+        <h1 class="page-header">{{curso}}</h1>
+        <!-- END page-header -->
+
+        <!-- BEGIN panel-body -->
+        <div class="panel-body">
+            <!-- BEGIN nav-tabs -->
+            <ul id="ioniconsTab" class="nav nav-pills mb-3">                
+                <li class="nav-item ms-2"><a href="#Asistencias" data-bs-toggle="tab" class="nav-link active d-flex align-items-center"><ion-icon name="aperture-sharp" class="fs-18px"></ion-icon><span class="ms-2">Asistencia de Estudiantes</span>&nbsp;</a></li>
+                <li class="nav-item ms-2"><a href="{% url 'Notas_bootcamp' curso.id %}" class="nav-link d-flex align-items-center"><ion-icon name="aperture-sharp" class="fs-18px"></ion-icon><span class="ms-2">Notas de Estudiantes</span>&nbsp;</a></li>
+                <li class="nav-item ms-2"><a href="{% url 'Seleccion_estudiante' curso.id %}" class="nav-link d-flex align-items-center"><ion-icon name="aperture-sharp" class="fs-18px"></ion-icon><span class="ms-2">Selección de Estudiantes</span>&nbsp;</a></li>
+                <li class="nav-item ms-2"><a href="{% url 'Bootcamp_report' curso.id %}" class="nav-link d-flex align-items-center"><ion-icon name="aperture-sharp" class="fs-18px"></ion-icon><span class="ms-2">Generar Reporte</span>&nbsp;</a></li>
+
+            </ul>
+            <!-- END nav-tabs -->
+            
+<!-- --------------------Tabla de Asistencia a Clases-------------------------------------------------------- -->
+
+            {% if user.is_superuser or curso.autor.pk == user.pk and user.groups.all.0.name == 'permisos_empresa' %}
+            <hr class="bg-gray-500" />
+            <!-- BEGIN tab-content -->
+            <div id="ioniconsTabContent" class="tab-content rounded-bottom fs-13px">
+                <!-- BEGIN tab-pane -->
+                <div class="tab-pane fade show active" id="Asistencias">    
+                    <div class="row">
+                        <!-- BEGIN panel -->
+                        <div class="panel panel-inverse">
+                            <!-- BEGIN panel-heading -->
+                            <div class="panel-heading">
+                                <h4 class="panel-title">Asistencia a Clases </h4>
+                                <div class="panel-heading-btn">
+                                    <a href="javascript:;" class="btn btn-xs btn-icon btn-default" data-toggle="panel-expand"><i class="fa fa-expand"></i></a>
+                                    <a href="javascript:;" class="btn btn-xs btn-icon btn-success" data-toggle="panel-reload"><i class="fa fa-redo"></i></a>
+                                    <!-- <a href="javascript:;" class="btn btn-xs btn-icon btn-warning" data-toggle="panel-collapse"><i class="fa fa-minus"></i></a> -->
+                                    <!-- <a href="javascript:;" class="btn btn-xs btn-icon btn-danger" data-toggle="panel-remove"><i class="fa fa-times"></i></a> -->
+                                </div>
+                            </div>                            
+                            <!-- END panel-heading -->
+
+                            <div class="panel-body table-responsive">
+                            <!-- begin section-container -->
+                                <div class="section-container"> 
+                                    <form method="GET" action="{% url 'Asistencia_bootcamp' id_bootcamp %}">
+                                        <div class="input-group sidebar-search">
+                                            <input type="date" id="fecha-input" name="fecha" class="form-control" value= '{{fecha_seleccionada}}' max="YYYY-MM-DD" />
+                                            <button type="submit">Buscar</button>
+                                        </div>                                    
+                                    </form>
+                                </div>
+                            
+                                <form method="POST" action="{% url 'Asistencia_bootcamp' id_bootcamp %}">
+                                    {% csrf_token %}
+                                    <hr class="bg-gray-500">
+
+                                    <table id="asistencia-table" class="display table table-striped table-bordered text-nowrap align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th>Img</th>
+                                                <th class="text-nowrap">Código</th>
+                                                <th class="text-nowrap">Estudiante</th>
+                                                <th class="text-nowrap">Correo</th>
+                                                <th class="text-nowrap">Carrera</th>
+                                                <th class="text-nowrap">Fecha</th>
+                                                <th class="text-nowrap text-center">Asistencia</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for assistance in assistances %}
+                                            <tr>
+                                                <td><img src="{{assistance.info_usuario.all.get.usuario.profile.photo.url}}" class="rounded-circle" width="30" height="30" alt="" /></td>
+                                                <td>{{ assistance.info_usuario.all.get.cedula}}</td>
+                                                <td>{{ assistance.info_usuario.first.nombre }} {{ assistance.info_usuario.first.apellido }}</td>
+                                                <td><code>{{ assistance.info_usuario.first.email }}</code></td>
+                                                <td>{{ assistance.info_usuario.all.get.carrera.all.get.codigo}}</td>
+                                                <td>{{ assistance.fecha_clase|date:"d/m/Y" }}</td>
+                                                <td class="text-center">
+                                                    <div style="text-align: center;">
+                                                        <input class="form-check-input is-valid"  type="checkbox" name="asistencia_values" value="{{ assistance.id }}-True" {% if assistance.asistencia %}checked{% endif %} onchange="handleCheckboxChange(this)"> Asistió
+                                                        <input class="form-check-input is-valid"  type="checkbox" name="asistencia_values" value="{{ assistance.id }}-False" {% if not assistance.asistencia %}checked{% endif %} onchange="handleCheckboxChange(this)"> No asistió
+                                                        <input type="hidden" name="asistencia_ids" value="{{ assistance.id }}">
+                                                    </div>                                                 
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    <hr class="bg-gray-500">
+                                <div class="text-center">
+                                    <button id="actualizar-btn" type="submit" class="btn btn-primary btn-lg btn-block" disabled>Actualizar Asistencia</button>
+                                </div>
+                                </form>  
+                            </div>
+                            <!-- END table-responsive -->                                       
+                        </div>    
+                        <!-- END panel -->
+
+                        <!-- END col-4 -->
+                    </div>
+                    <!-- END row -->                
+                </div>
+                <!-- END tab-pane Asistencia a Clases--> 
+                {% endif %} 
+
+        </div>
+        <!-- END tab-content -->
+    </div>
+    <!-- END panel-body -->               
+</div>
+<!-- END #content -->
+
+{% endif %}
+
+<!--IniciaModal-->
+<div class="modal fade" id="modalGestion" role="dialog" ></div>
+<!--EndModal-->
+
+{% endblock %}
+{% block extrajs %}
+
+<!-- Función para mostrar mensaje cuando se realiza una actualización correcta -->
+<script>
+        $(document).on('submit','#form-asistencia',function(e){
+        e.preventDefault();
+        var formData = $('#form-asistencia').serialize();
+        $.ajax({
+            type:$('#form-asistencia').attr('method'),
+            url:$('#form-asistencia').attr('action'),
+            data: formData,
+            success: function(response) {                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Asistencia',
+                    text: 'Actualizada correctamente!',
+                    confirmButtonColor: '#2d353c',
+                })     
+            }            
+         
+        })
+        $('#modalGestion').modal('hide');
+    });
+</script>
+
+<!-- Función para desmarcar el checkbox si desmarca el otro -->
+<script>
+    function handleCheckboxChange(checkbox) {
+        var row = checkbox.closest('tr');  // Obtener la fila actual
+        var checkboxes = row.querySelectorAll('input[name="asistencia_values"]');
+        var oppositeCheckbox;
+    
+        if (checkbox.checked) {
+            // Si el checkbox marcado es "Asistió", deshabilitar "No asistió"
+            if (checkbox.value.endsWith('-True')) {
+                oppositeCheckbox = row.querySelector('input[value$="-False"]');
+            }
+            // Si el checkbox marcado es "No asistió", deshabilitar "Asistió"
+            else if (checkbox.value.endsWith('-False')) {
+                oppositeCheckbox = row.querySelector('input[value$="-True"]');
+            }
+    
+            if (oppositeCheckbox) {
+                oppositeCheckbox.checked = false;
+                oppositeCheckbox.disabled = true;
+            }
+        } else {
+            // Habilitar ambos checkboxes si ninguno está marcado
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].disabled = false;
+            }
+        }
+    }
+    </script>
+
+<!-- función para mostrar la fecha en el formato correcto en el input fecha -->
+<!-- <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var fechaInput = document.getElementById('fecha-input');
+        var fechaActual = new Date().toISOString().split('T')[0];
+        fechaInput.value = fechaActual;
+    });
+</script> -->
+
+<!-- Función para habilitar o deshabilitar el botón actualizar si hay algún cambio -->
+<script>
+    function handleCheckboxChange() {
+        var checkboxes = document.getElementsByName('asistencia_values');
+        var actualizarBtn = document.getElementById('actualizar-btn');
+        var changesMade = false;
+    
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].checked !== checkboxes[i].defaultChecked) {
+                changesMade = true;
+                break;
+            }
+        }
+    
+        if (changesMade) {
+            actualizarBtn.disabled = false;
+        } else {
+            actualizarBtn.disabled = true;
+        }
+    }
+    </script>
+
+{% endblock extrajs %}

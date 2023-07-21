@@ -1,0 +1,40 @@
+/** Estilos Certificados **/
+
+.body{
+  background-image: url('/static/img/certificado/fondo_certificado.png'); 
+  background-repeat: no-repeat; 
+  background-size: cover;
+}
+
+.box {
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.box div {
+width: 600px;
+height: 500px;
+padding-top: 30px;
+}
+
+h3 {
+  font-size: 1.3125rem;
+}
+
+.text-danger {
+  color: #dc3545!important;
+}
+
+.text-center {
+  text-align: center!important;
+}
+
+.builder .demo .box .view {
+  display: block;
+  padding-top: 30px;
+}
+
+
+
+

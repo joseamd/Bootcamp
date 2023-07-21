@@ -1,0 +1,26 @@
+<!--IniciaModal-->
+
+<div class="modal-dialog modal-lg" role="document" >
+      <div class="modal-content">
+        <div class="panel panel-inverse" data-sortable-id="offcanvas-1">
+            <div class="panel-heading">
+                <h2 class="panel-title">Registrar Nueva Asignación </h2>                
+            </div>
+        
+            <form enctype="multipart/form-data" action="{% url 'Add_asignacion' clase_id.pk %}" method="POST">
+                <div class="modal-body"> 
+                    {% csrf_token %}
+                    {{form.as_p}}
+                    <input type="hidden" id="id_bootcamp" name="id_bootcamp" >               
+                </div>
+                <div class="modal-footer">
+                    <div class="section-container text-center">  
+                        <button type="button" class="btn btn-secondary btn-lg btn-block" data-bs-toggle="modal" aria-label="close">Cancelar</button>
+                        <button type="submit" class="btn btn-primary btn-lg btn-block" >Agregar</button>
+                    </div>    
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+  <!--EndModal-->

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	{% load static %}		
+	<meta charset="utf-8" />
+	<title>Color Admin | Register v3</title>
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+	<meta content="" name="description" />
+	<meta content="" name="author" />
+	
+	<!-- ================== BEGIN core-css ================== -->
+	<link href="{% static 'css/vendor.min.css' %}" rel="stylesheet" />
+	<link href="{% static 'css/transparent/app.min.css' %}" rel="stylesheet" />
+	<link href="{% static 'css/style.css' %}" rel="stylesheet" />
+	
+	<!-- ================== END core-css ================== -->
+	
+</head>
+<body class='pace-top'>
+	<!-- BEGIN page-cover -->
+	<div class="app-cover"></div>
+	<!-- END page-cover -->
+	
+	<!-- BEGIN #loader -->
+	<div id="loader" class="app-loader">
+		<span class="spinner"></span>
+	</div>
+	<!-- END #loader -->
+
+
+	<!-- BEGIN #app -->
+	<div id="app" class="app">
+		<!-- BEGIN register -->
+		<div class="register register-with-news-feed">
+			<!-- BEGIN news-feed -->
+			<div class="news-feed">
+				<div class="news-image" style="background-image: url(/static/img/login-bg/login-bg-15.jpg)"></div>
+				<div class="news-caption">
+					<h4 class="caption-title"><b>FINISHING SCHOOL-BOOTCAMP</b> </h4>
+					<p>Bootcamps online para trabajar en tecnología</p>
+					<p>Elige los bootcamps online para aprender a desarrollar las habilidades</p>
+					<p>más demandadas del trabajo en tecnología.</p>
+						
+				</div>
+			</div>
+			<!-- END news-feed -->
+
+            {% block content %}
+
+
+            {% endblock %}
+        </div>
+		<!-- END register -->		
+	</div>
+	<!-- END #app -->
+	
+	<!-- ================== BEGIN core-js ================== -->
+	<script src="{% static 'js/vendor.min.js' %}"></script>
+	<script src="{% static 'js/app.min.js' %}"></script>
+	<!-- ================== END core-js ================== -->
+</body>
+</html>

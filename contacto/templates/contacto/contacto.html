@@ -1,0 +1,161 @@
+{%extends "home/base.html" %}
+{% block title %} Contacto {% endblock title %}
+{%load static %}
+
+{% block content %}
+
+ <!-- begin #content -->
+ <div id="content" class="content">
+    <!-- begin container -->
+    <div class="container">
+        <!-- begin row -->
+        <div class="row row-space-30">
+            <!-- begin col-9 -->
+            <div class="col-lg-9">
+                <!-- begin section-container -->
+                <div class="section-container">
+                    <div class="ratio ratio-16x9">
+                        <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1QYe45rUVlQ-5Jr9dJQK_blWhUhw&ehbc=2E312F" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <!-- end section-container -->
+                <!-- begin section-container -->
+                <div class="section-container">
+                    <h4 class="section-title m-b-20"><span>¿Tienes dudas sobre los Bootcamps?</span></h4>
+                    <h4 class="section-title m-b-20"><span>CONTÁCTENOS</span></h4>
+                    <p class="m-b-30">
+                        Puedes diligenciar el siguiente formulario y dejar tu consulta. 
+                        Nos pondremos en contacto contigo lo antes posible..
+                    </p>
+                    <!-- begin row -->
+                    
+                    
+                    <div class="row row-space-35">
+                        <!-- begin col-8 -->
+                        <div class="col-md-8">
+                            <div class="mb-3 row">
+                                <label class="col-form-label col-md-3 text-md-right"></label>
+
+                                        <!-- {% if "valido" in request.GET %}                                              
+                                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+                                                <strong>Información enviada correctamente!!</strong>
+                                                <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+                                            </div>                                                                          
+                                        {% endif %} -->
+                                        
+                                    <form action="" method="POST">
+                                        {% csrf_token %}                                        
+                                        <table>{{miFormulario.as_table}} </table>   
+                                        <p>Nunca recibirás spam ni utilizamos tus datos para otros fines, respetamos la privacidad al 100%. </p>
+                                        <P></P>
+                                        <div class="mb-3 row"> 
+                                            <label class="col-form-label col-md-3 text-md-center"></label>
+                                            <div class="col-md-9 text-right">
+                                                <button type="submit" class="btn btn-dark btn-lg btn-block">SOLICITAR INFORMACIÓN</button>
+                                            </div>
+                                        </div> 
+                                    </form>                                        
+                            </div>                               
+                        </div>
+
+
+                    
+                        <!-- end col-8 -->
+                        <!-- begin col-4 -->
+                        <div class="col-md-4">
+                            <p>
+                                <strong>Universidad del Valle</strong><br>
+                                Ciudad Universitaria Meléndez<br>
+                                Calle 13 # 100-00 Santiago de Cali, Valle del Cauca, Colombia<br>
+                                Código postal: 760042 - Nit: 890.399.010.6<br>
+                            </p>
+                            <p>
+                                <span class="phone">Teléfono: (602) 3212100 - Línea Gratuita: 018000 22 00 21</span><br>
+                                <a href="mailto:hello@emailaddress.com">finishingschool.bootcamp@gmail.com</a>
+                            </p>
+                        </div>
+                        <!-- end col-4 -->
+                    </div>
+                    <!-- end row -->
+                </div>
+                <!-- end section-container -->
+            </div>
+            <!-- end col-9 -->
+            <!-- begin col-3 -->
+            <div class="col-lg-3">
+                <!-- begin section-container -->
+				<div class="section-container">					
+					<form action="{% url 'Buscar_bootcamp' %}" method="GET">
+						<div class="input-group sidebar-search">
+							<input type="text" name="boot" class="form-control" placeholder="Buscar Bootcamp..." />
+							<button class="btn btn-dark" type="submit"><i class="fa fa-search"></i></button>							
+						</div>						
+					</form>
+					{% if mensaje_error %}                                              
+						<div class="alert alert-danger d-flex align-items-center" role="alert">
+							<svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+							<strong>{{mensaje_error}}</strong>
+							<button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+						</div>                                                                          
+					{% endif %}     
+				</div>
+				<!-- end section-container --> 
+                <!-- begin section-container -->
+                <div class="section-container">
+                    <h4 class="section-title"><span>Categorías Bootcamp</span></h4>
+                    <ul class="sidebar-list">
+						{% for categ in tipo_categBd %}
+                            <li><a href="{% url 'Bootcamp' pagina=1 %}">{{categ.nombre}}</a></li>
+                        {% endfor %}							
+					</ul>
+                </div>
+                <!-- end section-container -->
+                <!-- begin section-container -->
+                <div class="section-container">
+                    <h4 class="section-title"><span>Blogs Recientes</span></h4>
+					<ul class="sidebar-recent-post">
+						{% for blog in blogs %}
+						<li>
+							<div class="info">
+								<h4 class="title"><a href="{% url 'Blog' pagina=1 %}">{{blog.titulo}}</a></h4>
+								<div class="date">{{blog.created|date:'d N Y'}}</div>
+							</div>
+						</li>	
+						{% endfor %}					
+					</ul>                    
+                </div>
+                <!-- end section-container -->
+                <!-- begin section-container -->
+                <div class="section-container">
+                    <h4 class="section-title"><span>Categorías Blogs</span></h4>
+                        <ul class="sidebar-list">
+                            {% for categoria in categBd %}
+                                <li><a href="{% url 'categoria' categoria.id %}">{{categoria.nombre}}</a></li>
+                            {% endfor %}
+                        </ul>
+                </div>
+                <!-- end section-container -->
+                <!-- begin section-container -->
+                <div class="section-container">
+                    <h4 class="section-title"><span>Síganos</span></h4>
+                    <ul class="sidebar-social-list">
+                        <li><a href="https://www.facebook.com/universidaddelvalle/"><i class="fab fa-facebook"></i></a></li>
+                        <li><a href="https://www.youtube.com/user/universidaddelvalle1"><i class="fab fa-youtube"></i></a></li>
+                        <li><a href="https://www.instagram.com/univallecol/?hl=es"><i class="fab fa-instagram"></i></a></li>
+                        <li><a href="https://twitter.com/UnivalleCol?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor"><i class="fab fa-twitter"></i></a></li>
+                        <li><a href="https://www.linkedin.com/school/universidad-del-valle/?viewAsMember=true"><i class="fab fa-linkedin"></i></a></li>
+                    </ul>
+                </div>
+                <!-- end section-container -->
+            </div>
+            <!-- end col-3 -->
+        </div>
+        <!-- end row -->
+    </div>
+    <!-- end container -->
+</div>
+<!-- end #content -->
+
+
+{% endblock %}
